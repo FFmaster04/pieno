@@ -38,6 +38,10 @@ jobs:
           fi
       - name: Installa dipendenze
         run: npm ci --no-audit --no-fund
+      - name: Verifica ricerca e tipi
+        run: |
+          npm run check-search
+          node node_modules/typescript/bin/tsc --noEmit
       - name: Crea il sito statico
         env:
           PAGES_BASE_PATH: /${{ github.event.repository.name }}/

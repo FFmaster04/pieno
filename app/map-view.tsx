@@ -4,9 +4,9 @@ import {Plus,Minus,LocateFixed,Maximize2,Compass,MapPin} from 'lucide-react';
 import type * as Leaflet from 'leaflet';
 import type {Station,Price,Bounds} from '@/lib/types';
 export type Candidate={station:Station;price:Price};
-export type MapCommand={lat:number;lng:number;zoom:number;key:number}|{italy:true;key:number};
-type Props={items:Candidate[];average:number|undefined;selected:number|null;onSelect:(s:Station)=>void;onBounds:(b:Bounds)=>void;command:MapCommand|null;onLocate:()=>void;location:[number,number]|null;loading:boolean};
-export default function MapView({items,average,selected,onSelect,onBounds,command,onLocate,location,loading}:Props){
+export type MapCommand={lat:number;lng:number;zoom:number;key:number}|{italy:true;key:number}|{bounds:[[number,number],[number,number]];maxZoom:number;key:number};
+type Props={items:Candidate[];average:number|undefined;selected:number|null;onSelect:(s:Station)=>void;onBounds:(b:Bounds)=>void;command:MapCommand|null;onLocate:()=>void;location:[number,number]|null;searchArea:{lat:number;lng:number;radius:number}|null;onReset:()=>void;loading:boolean};
+export default function MapView({items,average,selected,onSelect,onBounds,command,onLocate,location,searchArea,onReset,loading}:Props){
  const node=useRef<HTMLDivElement>(null),map=useRef<Leaflet.Map|null>(null),L=useRef<typeof Leaflet|null>(null),layer=useRef<Leaflet.LayerGroup|null>(null),position=useRef<Leaflet.LayerGroup|null>(null);
  const [ready,setReady]=useState(false),[revision,setRevision]=useState(0),[tileError,setTileError]=useState(false);
  const selectRef=useRef(onSelect),boundsRef=useRef(onBounds);selectRef.current=onSelect;boundsRef.current=onBounds;
@@ -38,11 +38,11 @@ export default function MapView({items,average,selected,onSelect,onBounds,comman
    }
   }
  },[items,average,selected,ready,revision]);
- useEffect(()=>{if(!ready||!map.current||!command)return;const m=map.current;if('italy'in command)m.flyToBounds([[35.45,6.4],[47.25,18.8]],{padding:[25,25],duration:.8});else m.flyTo([command.lat,command.lng],command.zoom,{duration:.8});},[command,ready]);
- useEffect(()=>{const l=L.current,g=position.current;if(!ready||!l||!g)return;g.clearLayers();if(location){l.circleMarker(location,{radius:9,color:'#fff',weight:3,fillColor:'#307aeb',fillOpacity:1}).addTo(g);l.circle(location,{radius:250,color:'#307aeb',weight:1,fillOpacity:.07}).addTo(g);}},[location,ready]);
+ useEffect(()=>{if(!ready||!map.current||!command)return;const m=map.current;if('italy'in command)m.flyToBounds([[35.45,6.4],[47.25,18.8]],{padding:[25,25],duration:.8});else if('bounds'in command)m.flyToBounds(command.bounds,{padding:[35,35],maxZoom:command.maxZoom,duration:.8});else m.flyTo([command.lat,command.lng],command.zoom,{duration:.8});},[command,ready]);
+ useEffect(()=>{const l=L.current,g=position.current;if(!ready||!l||!g)return;g.clearLayers();if(location){l.circleMarker(location,{radius:9,color:'#fff',weight:3,fillColor:'#307aeb',fillOpacity:1}).addTo(g);l.circle(location,{radius:250,color:'#307aeb',weight:1,fillOpacity:.07}).addTo(g);}if(searchArea){const point:[number,number]=[searchArea.lat,searchArea.lng];l.circle(point,{radius:searchArea.radius*1000,color:'#657b3b',weight:1.5,dashArray:'5 6',fillColor:'#b6d47b',fillOpacity:.1,interactive:false}).addTo(g);l.circleMarker(point,{radius:7,color:'#fff',weight:3,fillColor:'#344821',fillOpacity:1,interactive:false}).addTo(g);}},[location,searchArea,ready]);
  return <div className="map-shell">
   <div ref={node} className="map" aria-label="Mappa interattiva dei distributori italiani" />
-  <div className="map-top"><span className="map-tag"><span className="live-dot"/>{loading?'Caricamento dati…':'La tua prossima sosta'}</span><button className="map-italy" onClick={()=>map.current?.flyToBounds([[35.45,6.4],[47.25,18.8]],{padding:[25,25],duration:.8})}><Maximize2 size={14}/> Tutta Italia</button></div>
+  <div className="map-top"><span className="map-tag"><span className="live-dot"/>{loading?'Caricamento dati…':'La tua prossima sosta'}</span><button className="map-italy" onClick={onReset}><Maximize2 size={14}/> Tutta Italia</button></div>
   <div className="map-controls"><span className="north">N<Compass size={22}/></span><div className="zoom-controls"><button aria-label="Ingrandisci mappa" onClick={()=>map.current?.zoomIn()}><Plus size={20}/></button><button aria-label="Riduci mappa" onClick={()=>map.current?.zoomOut()}><Minus size={20}/></button></div><button className="locate-map" aria-label="Trova la mia posizione" onClick={onLocate}><LocateFixed size={20}/></button></div>
   <div className="map-legend"><span><i/> Sotto la media</span><span><i/> Sopra la media</span></div>
   {tileError&&<div className="map-error" role="status"><MapPin size={18}/> La cartografia è temporaneamente indisponibile. Puoi consultare tutti i prezzi nell’elenco.</div>}
