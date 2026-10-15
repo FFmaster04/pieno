@@ -1,0 +1,49 @@
+name: Prezzi giornalieri e sito
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    # Runs twice to tolerate late MIMIT publication. All times are UTC.
+    - cron: '23 8,12 * * *'
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  update-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Scarica e valida i dati MIMIT
+        env:
+          PREVIOUS_SNAPSHOT_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/data/initial.json
+        run: node scripts/update-data.mjs
+      - name: Installa dipendenze
+        run: npm ci --no-audit --no-fund
+      - name: Crea il sito statico
+        env:
+          PAGES_BASE_PATH: /${{ github.event.repository.name }}/
+        run: node node_modules/vite/bin/vite.js build --config vite.static.config.ts
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist-static
+          retention-days: 1
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: update-and-build
+    steps:
+      - name: Pubblica
+        id: deployment
+        uses: actions/deploy-pages@v4
