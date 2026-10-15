@@ -2,7 +2,11 @@
 
 Il sito è già completo: cartografia d'Italia, ricerca di 7.947 comuni e denominazioni, 23.776 distributori geolocalizzati nell'estrazione iniziale, tutti i carburanti comunicati, self/servito, media giornaliera, preferiti, filtri, indicazioni e versione mobile.
 
-## Pubblicarlo gratis
+## Il sito è online
+
+Apri **https://ffmaster04.github.io/pieno/**. Il repository è **https://github.com/FFmaster04/pieno**. GitHub Pages e il controllo giornaliero sono configurati; il primo scaricamento MIMIT e la prima pubblicazione sono riusciti il 15 ottobre 2026. Non devi attivare altri servizi.
+
+## Replicare il progetto gratuitamente
 
 Occorre soltanto un account GitHub gratuito. Non acquistare un dominio e non attivare piani a pagamento.
 
@@ -19,11 +23,13 @@ Fonti sui costi:
 - https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages
 - https://docs.github.com/en/billing/concepts/product-billing/github-actions
 
-**Stato della consegna:** il progetto e il workflow sono pronti; la pubblicazione e la pianificazione su GitHub diventano attive soltanto dopo il collegamento dell'account e il primo deploy riuscito. Una cartella scaricata da sola non si aggiorna automaticamente.
+**Stato della consegna:** sito pubblico online, workflow attivo e prima esecuzione verificata. Gli aggiornamenti avvengono in cloud; una copia locale scaricata rimane invece una fotografia dei dati inclusi.
 
 ## Come si aggiorna
 
 Ogni giorno il workflow controlla i due CSV ufficiali MIMIT alle 08:23 e 12:23 UTC: il secondo controllo copre eventuali pubblicazioni tardive. In Italia corrispondono alle 10:23/14:23 con ora legale e 09:23/13:23 con ora solare. GitHub può ritardare le esecuzioni pianificate.
+
+Il repository conserva una piccola ricevuta giornaliera con data di controllo, data della fonte e numero di prezzi, senza accumulare i listini completi. Questo documenta l'attività di aggiornamento del progetto.
 
 Le estrazioni devono avere la stessa data, il formato atteso e una copertura minima valida. Se la fonte non risponde o i dati non passano i controlli, la pubblicazione si interrompe e il sito già online mantiene l'ultima versione valida. La data dell'estrazione resta sempre visibile. Il Ministero pubblica una fotografia dei prezzi alle 8 del giorno precedente; non sono prezzi in tempo reale.
 

@@ -7,7 +7,7 @@ on:
     # Runs twice to tolerate late MIMIT publication. All times are UTC.
     - cron: '23 8,12 * * *'
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 concurrency:
@@ -26,6 +26,16 @@ jobs:
         env:
           PREVIOUS_SNAPSHOT_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/data/initial.json
         run: node scripts/update-data.mjs
+      - name: Registra il controllo giornaliero
+        run: |
+          node scripts/record-update.mjs
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/data-status.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Registra controllo giornaliero MIMIT"
+            git push
+          fi
       - name: Installa dipendenze
         run: npm ci --no-audit --no-fund
       - name: Crea il sito statico
