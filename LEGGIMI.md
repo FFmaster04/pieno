@@ -1,52 +1,44 @@
 # pieno — tutto il progetto, a costo zero
 
-Il sito è già completo: cartografia d'Italia, ricerca di 7.947 comuni e denominazioni, 23.776 distributori geolocalizzati nell'estrazione iniziale, tutti i carburanti comunicati, self/servito, media giornaliera, preferiti, filtri, indicazioni e versione mobile.
+Sito pubblico: **https://ffmaster04.github.io/pieno/**. Repository: **https://github.com/FFmaster04/pieno**.
 
-## Il sito è online
+## Cosa include
 
-Apri **https://ffmaster04.github.io/pieno/**. Il repository è **https://github.com/FFmaster04/pieno**. GitHub Pages e il controllo giornaliero sono configurati; il primo scaricamento MIMIT e la prima pubblicazione sono riusciti il 15 ottobre 2026. Non devi attivare altri servizi.
+Mappa dei distributori italiani, ricerca distinta per città e provincia per tutti i 119 comuni capoluogo, indirizzi con raggio 1/3/5 km e CAP. Tutti i listini comunicati, self/servito, medie nazionali giornaliere, preferiti locali, filtri e indicazioni stradali.
 
-## Replicare il progetto gratuitamente
+Le nuove funzioni comprendono:
 
-Occorre soltanto un account GitHub gratuito. Non acquistare un dominio e non attivare piani a pagamento.
+1. Quantità del pieno personalizzabile, totale in euro e risparmio rispetto alla media. Metano e GNL usano chilogrammi; gli altri carburanti litri.
+2. Confronto fino a tre impianti, con prezzo unitario, totale per la stessa quantità, date, distanza e differenza dal più basso.
+3. Grafico a 7 e 30 giorni delle medie realmente raccolte, separate per carburante e modalità. Lo storico parte dall’estrazione del 14 ottobre 2026; i giorni mancanti restano vuoti. Vengono conservate fino a 400 rilevazioni giornaliere, senza archiviare tutti i listini degli impianti.
+4. Preferenze automatiche sul dispositivo: carburante, modalità, quantità, zona e filtri. Il salvataggio si può disattivare o cancellare dal pannello “Preferenze”. La posizione GPS non viene memorizzata.
+5. Link di ricerca che ricostruiscono zona, CAP o indirizzo, filtri, quantità ed eventuali impianti nel confronto. I link hanno precedenza sulle preferenze del destinatario. I prezzi rimangono quelli disponibili quando vengono aperti.
+6. App web installabile nei browser compatibili, con icone dedicate e consultazione offline di prezzi, località, confronto e storico dopo una prima visita completa. Mappe, indicazioni stradali e nuovi indirizzi richiedono una connessione. La data della copia rimane visibile.
 
-1. Crea un repository **pubblico** chiamato `pieno`, con ramo `main`. Carica il contenuto di questa cartella, inclusa la cartella nascosta `.github`.
-2. Nel repository apri **Settings → Pages → Source** e scegli **GitHub Actions**.
-3. Nella scheda **Actions**, apri “Prezzi giornalieri e sito” e premi **Run workflow**.
-4. Al completamento il sito sarà disponibile all'indirizzo gratuito `https://NOMEUTENTE.github.io/pieno/`.
+## Gratuità e pubblicazione
 
-Il workflow usa esclusivamente runner Ubuntu standard. Non richiede carta di credito, database, API a pagamento, servizi AI o un computer acceso. I file di pubblicazione vengono conservati per un giorno; non viene accumulato uno storico dei listini nel repository. Non configurare runner “larger”, budget aggiuntivi o domini a pagamento.
+Il sito usa GitHub Pages con repository pubblico e runner GitHub Actions Ubuntu standard, senza API a pagamento, servizi AI, database o computer acceso. Non serve acquistare un dominio. Il servizio Photon pubblico per gli indirizzi è gratuito e best-effort. Non sono configurati acquisti o abbonamenti.
 
-GitHub Pages è gratuito per repository pubblici e GitHub Actions è gratuito con runner standard nei repository pubblici. Restano i limiti di uso dei servizi gratuiti; nessun hosting gratuito garantisce disponibilità o traffico illimitati.
+Per replicare il progetto: crea un repository pubblico `pieno`, carica anche `.github`, seleziona **Settings → Pages → Source → GitHub Actions** e avvia il workflow “Prezzi giornalieri e sito”. Il dominio sarà `https://NOMEUTENTE.github.io/pieno/`.
 
-Fonti sui costi:
-- https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages
-- https://docs.github.com/en/billing/concepts/product-billing/github-actions
+Il workflow controlla MIMIT alle 08:23 e 12:23 UTC, valida i dati, aggiorna lo storico, verifica il codice e pubblica il sito. Le esecuzioni pianificate possono essere ritardate da GitHub. In caso di errore resta online l’ultima versione valida. La ricevuta e le medie giornaliere vengono conservate nel repository; i file di pubblicazione scadono dopo un giorno.
 
-**Stato della consegna:** sito pubblico online, workflow attivo e prima esecuzione verificata. Gli aggiornamenti avvengono in cloud; una copia locale scaricata rimane invece una fotografia dei dati inclusi.
+## Dati e limiti
 
-## Come si aggiorna
+MIMIT pubblica una fotografia dei prezzi delle 8 del giorno precedente. I singoli listini conservano la propria data e possono essere incompleti o datati. Le nostre medie includono la rete stradale nazionale, escludono le autostrade e i listini oltre 7 giorni dall’estrazione; sono separate per carburante e modalità e non coincidono con le medie regionali ufficiali.
 
-Ogni giorno il workflow controlla i due CSV ufficiali MIMIT alle 08:23 e 12:23 UTC: il secondo controllo copre eventuali pubblicazioni tardive. In Italia corrispondono alle 10:23/14:23 con ora legale e 09:23/13:23 con ora solare. GitHub può ritardare le esecuzioni pianificate.
+Il filtro città usa il comune dichiarato nell’anagrafica MIMIT. Nei comuni con più CAP vengono usati solo i CAP espliciti e coerenti nell’indirizzo; i risultati possono essere incompleti. Le distanze sono in linea d’aria e i costi del pieno non comprendono il tragitto.
 
-Il repository conserva una piccola ricevuta giornaliera con data di controllo, data della fonte e numero di prezzi, senza accumulare i listini completi. Questo documenta l'attività di aggiornamento del progetto.
+La consultazione offline usa soltanto dati e file di pieno. Non vengono scaricate mappe per l’uso offline. Il browser può rimuovere la copia locale se vengono cancellati i dati del sito o manca spazio sul dispositivo.
 
-Le estrazioni devono avere la stessa data, il formato atteso e una copertura minima valida. Se la fonte non risponde o i dati non passano i controlli, la pubblicazione si interrompe e il sito già online mantiene l'ultima versione valida. La data dell'estrazione resta sempre visibile. Il Ministero pubblica una fotografia dei prezzi alle 8 del giorno precedente; non sono prezzi in tempo reale.
+## Sviluppo e verifiche
 
-Le medie sono una nostra elaborazione nazionale della rete stradale, escludono autostrade e listini più vecchi di 7 giorni rispetto all'estrazione. Ogni carburante è separato da self/servito. Le schede nazionali mostrano self per benzina e diesel e servito per GPL e metano. Le medie non sono quelle regionali ufficiali.
+Node.js 22.13 o successivo. `npm ci`, poi `npm run dev` per lo sviluppo. `npm run update-data` aggiorna i listini; `node scripts/record-history.mjs` conserva le medie dell’estrazione. `npm run check-data`, `npm run check-search` e `npm run check-experience` eseguono i controlli. `npm run build` genera anche manifest e service worker in `dist-static`.
 
-La ricerca dei comuni funziona localmente, senza API di geocodifica. I preferiti restano solo nel browser. Le distanze sono in linea d'aria. La cartografia viene da OpenStreetMap e può essere limitata in caso di traffico eccessivo; i prezzi sono consultabili anche nell'elenco. Nessuna iscrizione o pubblicità inserita.
-
-## Anteprima sul computer
-
-Con Node.js 22 o successivo: `npm ci`, poi `npm run dev`. Il sito legge la copia inclusa in `public/data/initial.json`. Per scaricare manualmente l'ultima estrazione: `npm run update-data`. Per verificare i dati: `npm run check-data`. Per creare i file da pubblicare: `npm run build`.
-
-Non aprire direttamente il file HTML: serve il piccolo server di anteprima indicato sopra oppure la pubblicazione GitHub Pages.
+Per verificare il percorso GitHub Pages, imposta `PAGES_BASE_PATH=/pieno/` durante la build e l’anteprima. La consultazione offline è attiva nella versione compilata e pubblicata, non nel server di sviluppo.
 
 ## Fonti e licenze
 
-Prezzi e anagrafica: MIMIT, IODL 2.0, https://www.mimit.gov.it/it/open-data/elenco-dataset/carburanti-prezzi-praticati-e-anagrafica-degli-impianti
+Prezzi e anagrafica: [MIMIT](https://www.mimit.gov.it/it/open-data/elenco-dataset/carburanti-prezzi-praticati-e-anagrafica-degli-impianti), IODL 2.0. Comuni/capoluoghi: ISTAT. CAP/coordinate: RP92 e Garda Informatica, CC BY 4.0 / MIT, con integrazioni Matteo Contrini e OpenDataSicilia; dettagli in `public/data/SEARCH-SOURCES.md`. Cartografia e indirizzi: © OpenStreetMap contributors, ODbL; ricerca Photon/komoot. Leaflet: BSD-2-Clause. Font DM Sans e Space Grotesk: SIL OFL.
 
-Cartografia: © OpenStreetMap contributors, ODbL. Leaflet: BSD-2-Clause. Indice comuni: Matteo Contrini / comuni-json e OpenDataSicilia / comuni-italiani, integrato con l'anagrafica MIMIT per alcune nuove denominazioni. Font locali DM Sans e Space Grotesk: SIL OFL; licenze in `public/licenses`.
-
-Progetto indipendente, non affiliato al Ministero.
+Nessun analytics o pubblicità. Preferiti, preferenze e copia offline restano nel browser. Progetto indipendente, non affiliato al Ministero.

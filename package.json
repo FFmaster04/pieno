@@ -8,10 +8,11 @@
   },
   "scripts": {
     "dev": "vite --config vite.static.config.ts --host 127.0.0.1",
-    "build": "vite build --config vite.static.config.ts",
+    "build": "vite build --config vite.static.config.ts && node scripts/build-pwa.mjs",
     "update-data": "node scripts/update-data.mjs",
     "check-data": "node scripts/check-data.mjs",
-    "check-search": "node --experimental-strip-types scripts/check-search.mjs"
+    "check-search": "node --experimental-strip-types scripts/check-search.mjs",
+    "check-experience": "node --experimental-strip-types scripts/check-experience.mjs"
   },
   "dependencies": {
     "react": "19.2.6",

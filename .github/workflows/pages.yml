@@ -26,26 +26,29 @@ jobs:
         env:
           PREVIOUS_SNAPSHOT_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/data/initial.json
         run: node scripts/update-data.mjs
-      - name: Registra il controllo giornaliero
-        run: |
-          node scripts/record-update.mjs
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .github/data-status.json
-          if ! git diff --cached --quiet; then
-            git commit -m "Registra controllo giornaliero MIMIT"
-            git push
-          fi
+      - name: Conserva lo storico delle medie
+        run: node scripts/record-history.mjs
       - name: Installa dipendenze
         run: npm ci --no-audit --no-fund
       - name: Verifica ricerca e tipi
         run: |
           npm run check-search
+          npm run check-experience
           node node_modules/typescript/bin/tsc --noEmit
       - name: Crea il sito statico
         env:
           PAGES_BASE_PATH: /${{ github.event.repository.name }}/
-        run: node node_modules/vite/bin/vite.js build --config vite.static.config.ts
+        run: npm run build
+      - name: Registra il controllo giornaliero
+        run: |
+          node scripts/record-update.mjs
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/data-status.json public/data/history.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Registra controllo MIMIT e storico medie"
+            git push
+          fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -5,8 +5,8 @@ import type * as Leaflet from 'leaflet';
 import type {Station,Price,Bounds} from '@/lib/types';
 export type Candidate={station:Station;price:Price};
 export type MapCommand={lat:number;lng:number;zoom:number;key:number}|{italy:true;key:number}|{bounds:[[number,number],[number,number]];maxZoom:number;key:number};
-type Props={items:Candidate[];average:number|undefined;selected:number|null;onSelect:(s:Station)=>void;onBounds:(b:Bounds)=>void;command:MapCommand|null;onLocate:()=>void;location:[number,number]|null;searchArea:{lat:number;lng:number;radius:number}|null;onReset:()=>void;loading:boolean};
-export default function MapView({items,average,selected,onSelect,onBounds,command,onLocate,location,searchArea,onReset,loading}:Props){
+type Props={items:Candidate[];average:number|undefined;selected:number|null;onSelect:(s:Station)=>void;onBounds:(b:Bounds)=>void;command:MapCommand|null;onLocate:()=>void;location:[number,number]|null;searchArea:{lat:number;lng:number;radius:number}|null;onReset:()=>void;loading:boolean;offline:boolean};
+export default function MapView({items,average,selected,onSelect,onBounds,command,onLocate,location,searchArea,onReset,loading,offline}:Props){
  const node=useRef<HTMLDivElement>(null),map=useRef<Leaflet.Map|null>(null),L=useRef<typeof Leaflet|null>(null),layer=useRef<Leaflet.LayerGroup|null>(null),position=useRef<Leaflet.LayerGroup|null>(null);
  const [ready,setReady]=useState(false),[revision,setRevision]=useState(0),[tileError,setTileError]=useState(false);
  const selectRef=useRef(onSelect),boundsRef=useRef(onBounds);selectRef.current=onSelect;boundsRef.current=onBounds;
@@ -45,7 +45,8 @@ export default function MapView({items,average,selected,onSelect,onBounds,comman
   <div className="map-top"><span className="map-tag"><span className="live-dot"/>{loading?'Caricamento dati…':'La tua prossima sosta'}</span><button className="map-italy" onClick={onReset}><Maximize2 size={14}/> Tutta Italia</button></div>
   <div className="map-controls"><span className="north">N<Compass size={22}/></span><div className="zoom-controls"><button aria-label="Ingrandisci mappa" onClick={()=>map.current?.zoomIn()}><Plus size={20}/></button><button aria-label="Riduci mappa" onClick={()=>map.current?.zoomOut()}><Minus size={20}/></button></div><button className="locate-map" aria-label="Trova la mia posizione" onClick={onLocate}><LocateFixed size={20}/></button></div>
   <div className="map-legend"><span><i/> Sotto la media</span><span><i/> Sopra la media</span></div>
-  {tileError&&<div className="map-error" role="status"><MapPin size={18}/> La cartografia è temporaneamente indisponibile. Puoi consultare tutti i prezzi nell’elenco.</div>}
+  {offline&&<div className="map-offline"><MapPin size={26}/><strong>La mappa si prende una pausa.</strong><span>I listini salvati sono disponibili nell’elenco.<br/>La cartografia torna quando sei online.</span></div>}
+  {tileError&&!offline&&<div className="map-error" role="status"><MapPin size={18}/> La cartografia è temporaneamente indisponibile. Puoi consultare tutti i prezzi nell’elenco.</div>}
   {!ready&&<div className="map-loading"><span className="spinner"/> Apriamo la mappa…</div>}
  </div>;
 }
