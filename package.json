@@ -12,7 +12,8 @@
     "update-data": "node scripts/update-data.mjs",
     "check-data": "node scripts/check-data.mjs",
     "check-search": "node --experimental-strip-types scripts/check-search.mjs",
-    "check-experience": "node --experimental-strip-types scripts/check-experience.mjs"
+    "check-experience": "node --experimental-strip-types scripts/check-experience.mjs",
+    "check-update": "node scripts/check-update.mjs"
   },
   "dependencies": {
     "react": "19.2.6",

@@ -8,7 +8,7 @@ Ricerca per città o provincia, indirizzo e CAP, mappa completa, self e servito,
 
 ## Hosting e aggiornamenti
 
-GitHub Pages su repository pubblico, runner Ubuntu standard, nessun servizio API a pagamento. Il workflow controlla la fonte alle 08:23 e 12:23 UTC e pubblica soltanto dopo aver validato i dati. Se la fonte non risponde, il sito online conserva l'ultima estrazione valida. Nessun aggiornamento richiede task AI o un computer acceso.
+GitHub Pages su repository pubblico, runner Ubuntu standard, nessun servizio API a pagamento. Il workflow controlla la fonte ogni ora al minuto 17, dalle 07:17 alle 19:17 UTC e pubblica soltanto dopo aver validato i dati. Se la fonte non risponde, il sito online conserva l'ultima estrazione valida. Nessun aggiornamento richiede task AI o un computer acceso.
 
 ## In locale
 

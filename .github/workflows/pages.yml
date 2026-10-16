@@ -4,8 +4,8 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    # Runs twice to tolerate late MIMIT publication. All times are UTC.
-    - cron: '23 8,12 * * *'
+    # Check hourly during the publication day. All times are UTC.
+    - cron: '17 7-19 * * *'
 permissions:
   contents: write
   pages: write
@@ -34,6 +34,7 @@ jobs:
         run: |
           npm run check-search
           npm run check-experience
+          npm run check-update
           node node_modules/typescript/bin/tsc --noEmit
       - name: Crea il sito statico
         env:

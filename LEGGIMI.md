@@ -21,7 +21,7 @@ Il sito usa GitHub Pages con repository pubblico e runner GitHub Actions Ubuntu 
 
 Per replicare il progetto: crea un repository pubblico `pieno`, carica anche `.github`, seleziona **Settings → Pages → Source → GitHub Actions** e avvia il workflow “Prezzi giornalieri e sito”. Il dominio sarà `https://NOMEUTENTE.github.io/pieno/`.
 
-Il workflow controlla MIMIT alle 08:23 e 12:23 UTC, valida i dati, aggiorna lo storico, verifica il codice e pubblica il sito. Le esecuzioni pianificate possono essere ritardate da GitHub. In caso di errore resta online l’ultima versione valida. La ricevuta e le medie giornaliere vengono conservate nel repository; i file di pubblicazione scadono dopo un giorno.
+Il workflow controlla MIMIT ogni ora al minuto 17, dalle 07:17 alle 19:17 UTC, valida i dati, aggiorna lo storico, verifica il codice e pubblica il sito. Le esecuzioni pianificate possono essere ritardate da GitHub. In caso di errore resta online l’ultima versione valida. La ricevuta e le medie giornaliere vengono conservate nel repository; i file di pubblicazione scadono dopo un giorno.
 
 ## Dati e limiti
 
@@ -33,7 +33,7 @@ La consultazione offline usa soltanto dati e file di pieno. Non vengono scaricat
 
 ## Sviluppo e verifiche
 
-Node.js 22.13 o successivo. `npm ci`, poi `npm run dev` per lo sviluppo. `npm run update-data` aggiorna i listini; `node scripts/record-history.mjs` conserva le medie dell’estrazione. `npm run check-data`, `npm run check-search` e `npm run check-experience` eseguono i controlli. `npm run build` genera anche manifest e service worker in `dist-static`.
+Node.js 22.13 o successivo. `npm ci`, poi `npm run dev` per lo sviluppo. `npm run update-data` aggiorna i listini; `node scripts/record-history.mjs` conserva le medie dell’estrazione. `npm run check-data`, `npm run check-search`, `npm run check-experience` e `npm run check-update` eseguono i controlli. `npm run build` genera anche manifest e service worker in `dist-static`.
 
 Per verificare il percorso GitHub Pages, imposta `PAGES_BASE_PATH=/pieno/` durante la build e l’anteprima. La consultazione offline è attiva nella versione compilata e pubblicata, non nel server di sviluppo.
 
