@@ -15,9 +15,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   update-and-build:
-    # Separate network from the Azure Linux pool where MIMIT connections time out.
-    # Standard runner: free for this public repository.
-    runs-on: macos-15
+    runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4

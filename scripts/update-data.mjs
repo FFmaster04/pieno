@@ -14,11 +14,11 @@ if(process.env.PREVIOUS_SNAPSHOT_URL){
   if(!previous||published.sourceDate>previous.sourceDate)previous=published;
  }catch(error){console.warn('Copia pubblicata non disponibile:',error.message);}
 }
-const {data:next,result,sourceError}=await refreshDataset({
+const {data:next,result,sourceError,sourceErrorDetail}=await refreshDataset({
  download:()=>downloadCSVPair({fetcher:fetchCSV,attempts:process.env.GITHUB_EVENT_NAME==='push'?1:3,retryDelay:20000}),
  published,minimumDate:previous&&previous.sourceDate>minimumDate?previous.sourceDate:minimumDate,
 });
-if(result==='cached')console.warn('::warning::Fonte MIMIT temporaneamente non disponibile: conservata l’ultima copia valida. Un nuovo controllo partirà automaticamente.');
+if(result==='cached'){console.warn('::warning::Fonte MIMIT temporaneamente non disponibile: conservata l’ultima copia valida. Un nuovo controllo partirà automaticamente.');console.warn(sourceErrorDetail);}
 await mkdir(new URL('../public/data/',import.meta.url),{recursive:true});
 const tmp=new URL('../public/data/initial.next.json',import.meta.url);
 await writeFile(tmp,JSON.stringify(packDataset(next)));await rename(tmp,target);
