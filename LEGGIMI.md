@@ -17,7 +17,7 @@ Le nuove funzioni comprendono:
 
 ## Gratuità e pubblicazione
 
-Il sito usa GitHub Pages con repository pubblico e runner GitHub Actions Ubuntu standard, senza API a pagamento, servizi AI, database o computer acceso. Non serve acquistare un dominio. Il servizio Photon pubblico per gli indirizzi è gratuito e best-effort. Non sono configurati acquisti o abbonamenti.
+Il sito usa GitHub Pages con repository pubblico e runner GitHub Actions standard (macOS per download e build, Ubuntu per la pubblicazione), senza API a pagamento, servizi AI, database o computer acceso. Non serve acquistare un dominio. Il servizio Photon pubblico per gli indirizzi è gratuito e best-effort. Non sono configurati acquisti o abbonamenti.
 
 Per replicare il progetto: crea un repository pubblico `pieno`, carica anche `.github`, seleziona **Settings → Pages → Source → GitHub Actions** e avvia il workflow “Prezzi giornalieri e sito”. Il dominio sarà `https://NOMEUTENTE.github.io/pieno/`.
 
