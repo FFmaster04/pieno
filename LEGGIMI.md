@@ -4,7 +4,7 @@ Sito pubblico: **https://ffmaster04.github.io/pieno/**. Repository: **https://gi
 
 ## Cosa include
 
-Mappa dei distributori italiani, ricerca distinta per città e provincia per tutti i 119 comuni capoluogo, indirizzi con raggio 1/3/5 km e CAP. Tutti i listini comunicati, self/servito, medie nazionali giornaliere, preferiti locali, filtri e indicazioni stradali.
+Mappa dei distributori italiani, ricerca distinta per città e provincia per tutti i 119 comuni capoluogo, indirizzi completi con campi via/piazza, civico, comune e CAP facoltativo, con raggio di 1/3/5 km. Se il civico manca nella cartografia viene proposta esplicitamente la posizione della strada. Tutti i listini comunicati, self/servito, medie nazionali giornaliere, preferiti locali, filtri e indicazioni stradali.
 
 Le nuove funzioni comprendono:
 
@@ -27,7 +27,7 @@ Il workflow controlla MIMIT ogni ora al minuto 17, dalle 07:17 alle 19:17 UTC, v
 
 MIMIT pubblica una fotografia dei prezzi delle 8 del giorno precedente. I singoli listini conservano la propria data e possono essere incompleti o datati. Le nostre medie includono la rete stradale nazionale, escludono le autostrade e i listini oltre 7 giorni dall’estrazione; sono separate per carburante e modalità e non coincidono con le medie regionali ufficiali.
 
-Il filtro città usa il comune dichiarato nell’anagrafica MIMIT. Nei comuni con più CAP vengono usati solo i CAP espliciti e coerenti nell’indirizzo; i risultati possono essere incompleti. Le distanze sono in linea d’aria e i costi del pieno non comprendono il tragitto.
+I segnaposto e i prezzi nell’elenco sono verdi sotto la media nazionale dello stesso carburante e modalità, arancioni entro ±0,01 €/l o €/kg e rossi sopra tale fascia. Le frecce e la legenda rendono il significato leggibile anche senza colore. Nei gruppi il prezzo “da” usa il colore del minimo; senza media viene usato un colore neutro. La ricerca per indirizzo completo usa la ricerca strutturata Photon, con cache temporanea e invio solo dopo una conferma esplicita.\n\nIl filtro città usa il comune dichiarato nell’anagrafica MIMIT. Nei comuni con più CAP vengono usati solo i CAP espliciti e coerenti nell’indirizzo; i risultati possono essere incompleti. Le distanze sono in linea d’aria e i costi del pieno non comprendono il tragitto.
 
 La consultazione offline usa soltanto dati e file di pieno. Non vengono scaricate mappe per l’uso offline. Il browser può rimuovere la copia locale se vengono cancellati i dati del sito o manca spazio sul dispositivo.
 

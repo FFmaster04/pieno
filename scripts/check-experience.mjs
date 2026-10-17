@@ -1,3 +1,4 @@
+import {priceLevel} from '../lib/price-level.ts';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {fullCost,saving,quantityUnit,fuelPrice} from '../lib/experience.ts';
@@ -37,3 +38,16 @@ const poisoned=readSharedSearch('?ricerca=1&carburante=evil&litri=-1&area=addres
 assert.equal(poisoned.scope,null);assert.equal(poisoned.preferences.fuel,'Benzina');assert.deepEqual(poisoned.compareIds,[1,3,4]);
 validateHistory(JSON.parse(await readFile(new URL('../public/data/history.json',import.meta.url),'utf8')));
 console.log('Verificati costi, kg/litri, medie storiche reali, preferenze, link condivisi e validazione dei parametri.');
+
+assert.equal(priceLevel(1.8,1.9),'lower');
+assert.equal(priceLevel(1.9,1.9),'average');
+assert.equal(priceLevel(1.89,1.9),'average');
+assert.equal(priceLevel(1.91,1.9),'average');
+assert.equal(priceLevel(1.889,1.9),'lower');
+assert.equal(priceLevel(1.911,1.9),'higher');
+assert.equal(priceLevel(2,1.9),'higher');
+for(const average of [undefined,NaN,0])assert.equal(priceLevel(1.9,average),'unknown');
+assert.equal(priceLevel(undefined,1.9),'unknown');
+console.log('Verificati i tre colori rispetto alla media, estremi della fascia ±1 centesimo e assenza di media.');
+assert.equal(priceLevel(2.045,2.03474),'average');
+assert.equal(priceLevel(2.046,2.03474),'higher');

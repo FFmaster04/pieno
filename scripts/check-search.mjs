@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {createPlaceIndex,addressOptions,distance} from '../lib/search.ts';
+import {addressSearchUrl,manualAddressOptions} from '../lib/geocoding.ts';
 import {unpackDataset} from '../lib/wire.mjs';
 const places=JSON.parse(await readFile(new URL('../public/data/search-places.json',import.meta.url),'utf8'));
 const index=createPlaceIndex(places);
@@ -45,3 +46,18 @@ const results=addressOptions({features:[feature('Lecce','Via Roma'),feature('Lec
 assert.equal(results.length,2);assert(results.every(o=>o.scope.kind==='address'&&o.scope.radius===3));
 assert.deepEqual(addressOptions({}),[]);
 console.log(`Ricerca verificata: ${places.municipalities.filter(p=>p.capital).length} capoluoghi; Lecce ${cityStations.length} impianti nel comune / ${provincialStations.length} in provincia; CAP e raggi indirizzi corretti.`);
+
+const complete={street:'Via Roma',houseNumber:'24/A',city:'Lecce',postcode:'73100'};
+const url=new URL(addressSearchUrl(complete));
+assert.equal(url.pathname,'/structured/');assert.equal(url.searchParams.get('housenumber'),'24/A');assert.equal(url.searchParams.get('postcode'),'73100');assert.equal(url.searchParams.get('countrycode'),'IT');
+assert.equal(new URL(addressSearchUrl('Via Roma 12, Milano')).searchParams.get('q'),'Via Roma 12, Milano');
+const house=(number)=>({...feature('Lecce','Via Roma'),properties:{countrycode:'IT',type:'house',street:'Via Roma',city:'Lecce',postcode:'73100',housenumber:number}});
+const exact=manualAddressOptions({features:[house('24a'),house('42'),feature('Lecce','Via Roma')]},complete);
+assert.equal(exact.length,2);assert(exact.some(o=>o.precision==='house'&&o.label==='Via Roma 24a'));assert(exact.some(o=>o.precision==='street'));assert(!exact.some(o=>o.houseNumber==='42'));
+assert.equal(addressOptions({features:[feature('Lecce','Outside Italy',[30,40])]}).length,0);
+console.log('Verificati indirizzi strutturati, civici con suffisso, CAP iniziali, civico assente e coordinate fuori Italia.');
+
+const wrongStreet=feature('Lecce','Via Francesco Trinchera');
+assert.equal(manualAddressOptions({features:[wrongStreet,feature('Lecce','Via Roma')]},complete).length,1);
+assert.equal(manualAddressOptions({features:[{...house('24/A'),properties:{...house('24/A').properties,postcode:'73010'}}]},complete).length,0);
+assert.equal(new URL(addressSearchUrl({...complete,postcode:'00186'})).searchParams.get('postcode'),'00186');

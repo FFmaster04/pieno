@@ -2,11 +2,13 @@
 import {useEffect,useRef,useState} from 'react';
 import {Plus,Minus,LocateFixed,Maximize2,Compass,MapPin} from 'lucide-react';
 import type * as Leaflet from 'leaflet';
+import {priceLevel,priceLevelLabel,priceLevelSymbol} from '@/lib/price-level';
+import {quantityUnit} from '@/lib/experience';
 import type {Station,Price,Bounds} from '@/lib/types';
 export type Candidate={station:Station;price:Price};
 export type MapCommand={lat:number;lng:number;zoom:number;key:number}|{italy:true;key:number}|{bounds:[[number,number],[number,number]];maxZoom:number;key:number};
-type Props={items:Candidate[];average:number|undefined;selected:number|null;onSelect:(s:Station)=>void;onBounds:(b:Bounds)=>void;command:MapCommand|null;onLocate:()=>void;location:[number,number]|null;searchArea:{lat:number;lng:number;radius:number}|null;onReset:()=>void;loading:boolean;offline:boolean};
-export default function MapView({items,average,selected,onSelect,onBounds,command,onLocate,location,searchArea,onReset,loading,offline}:Props){
+type Props={items:Candidate[];average:number|undefined;fuel:string;mode:string;selected:number|null;onSelect:(s:Station)=>void;onBounds:(b:Bounds)=>void;command:MapCommand|null;onLocate:()=>void;location:[number,number]|null;searchArea:{lat:number;lng:number;radius:number}|null;onReset:()=>void;loading:boolean;offline:boolean};
+export default function MapView({items,average,fuel,mode,selected,onSelect,onBounds,command,onLocate,location,searchArea,onReset,loading,offline}:Props){
  const node=useRef<HTMLDivElement>(null),map=useRef<Leaflet.Map|null>(null),L=useRef<typeof Leaflet|null>(null),layer=useRef<Leaflet.LayerGroup|null>(null),position=useRef<Leaflet.LayerGroup|null>(null);
  const [ready,setReady]=useState(false),[revision,setRevision]=useState(0),[tileError,setTileError]=useState(false);
  const selectRef=useRef(onSelect),boundsRef=useRef(onBounds);selectRef.current=onSelect;boundsRef.current=onBounds;
@@ -29,12 +31,13 @@ export default function MapView({items,average,selected,onSelect,onBounds,comman
   for(const item of items){const s=item.station;if(!bounds.contains([s.lat,s.lng]))continue;const p=m.project([s.lat,s.lng],zoom);const key=zoom>=17?String(s.id):Math.floor(p.x/cell)+','+Math.floor(p.y/cell);const arr=buckets.get(key)||[];arr.push(item);buckets.set(key,arr);}
   for(const entries of buckets.values()){
    if(entries.length>1){let la=0,lo=0,min=Infinity;for(const e of entries){la+=e.station.lat;lo+=e.station.lng;min=Math.min(min,e.price.price);}la/=entries.length;lo/=entries.length;
-    const active=entries.some(e=>e.station.id===selected);const label=entries.length>999?`${(entries.length/1000).toFixed(1).replace('.',',')}k`:String(entries.length);
-    const icon=l.divIcon({className:'cluster-wrap',html:`<div class="map-cluster ${active?'is-selected':''}"><b>${label}</b>${zoom>7?`<small>da ${min.toFixed(3).replace('.',',')}</small>`:''}</div>`,iconSize:[zoom>7?70:48,zoom>7?52:48],iconAnchor:[zoom>7?35:24,zoom>7?26:24]});
-    const marker=l.marker([la,lo],{icon,keyboard:true,title:`${entries.length} distributori: ingrandisci`,zIndexOffset:active?1000:0}).addTo(g);marker.on('click',()=>m.flyTo([la,lo],Math.min(19,zoom+2),{duration:.6}));
-   }else{const {station:s,price:p}=entries[0];const cheap=average!==undefined && p.price<average;
-    const icon=l.divIcon({className:'price-wrap',html:`<div class="map-price ${cheap?'cheap':''} ${s.id===selected?'is-selected':''}">${p.price.toFixed(3).replace('.',',')}</div>`,iconSize:[70,38],iconAnchor:[35,19]});
-    const marker=l.marker([s.lat,s.lng],{icon,title:`${s.brand}, ${s.city}: ${p.price.toFixed(3)} euro`,zIndexOffset:s.id===selected?1500:cheap?500:0}).addTo(g);marker.on('click',()=>selectRef.current(s));
+    const active=entries.some(e=>e.station.id===selected),level=priceLevel(min,average);
+    const label=entries.length>999?(entries.length/1000).toFixed(1).replace('.',',')+'k':String(entries.length);
+    const icon=l.divIcon({className:'cluster-wrap',html:'<div class="map-cluster '+(active?'is-selected':'')+'"><b>'+label+'</b>'+(zoom>7?'<small class="price-'+level+'">'+priceLevelSymbol[level]+' da '+min.toFixed(3).replace('.',',')+'</small>':'')+'</div>',iconSize:[zoom>7?78:48,zoom>7?56:48],iconAnchor:[zoom>7?39:24,zoom>7?28:24]});
+    const marker=l.marker([la,lo],{icon,keyboard:true,title:entries.length+' distributori, prezzo minimo '+min.toFixed(3)+' euro: '+priceLevelLabel[level]+'. Ingrandisci per vedere i singoli impianti.',zIndexOffset:active?1000:0}).addTo(g);marker.on('click',()=>m.flyTo([la,lo],Math.min(19,zoom+2),{duration:.6}));
+   }else{const {station:s,price:p}=entries[0],level=priceLevel(p.price,average);
+    const icon=l.divIcon({className:'price-wrap',html:'<div class="map-price price-'+level+' '+(s.id===selected?'is-selected':'')+'"><span class="map-price-symbol" aria-hidden="true">'+priceLevelSymbol[level]+'</span><span>'+p.price.toFixed(3).replace('.',',')+'</span></div>',iconSize:[74,38],iconAnchor:[37,19]});
+    const marker=l.marker([s.lat,s.lng],{icon,title:s.brand+', '+s.city+': '+p.price.toFixed(3)+' euro. '+priceLevelLabel[level]+'.',zIndexOffset:s.id===selected?1500:level==='lower'?500:0}).addTo(g);marker.on('click',()=>selectRef.current(s));
    }
   }
  },[items,average,selected,ready,revision]);
@@ -44,7 +47,7 @@ export default function MapView({items,average,selected,onSelect,onBounds,comman
   <div ref={node} className="map" aria-label="Mappa interattiva dei distributori italiani" />
   <div className="map-top"><span className="map-tag"><span className="live-dot"/>{loading?'Caricamento dati…':'La tua prossima sosta'}</span><button className="map-italy" onClick={onReset}><Maximize2 size={14}/> Tutta Italia</button></div>
   <div className="map-controls"><span className="north">N<Compass size={22}/></span><div className="zoom-controls"><button aria-label="Ingrandisci mappa" onClick={()=>map.current?.zoomIn()}><Plus size={20}/></button><button aria-label="Riduci mappa" onClick={()=>map.current?.zoomOut()}><Minus size={20}/></button></div><button className="locate-map" aria-label="Trova la mia posizione" onClick={onLocate}><LocateFixed size={20}/></button></div>
-  <div className="map-legend"><span><i/> Sotto la media</span><span><i/> Sopra la media</span></div>
+  <div className="map-legend" aria-label="Legenda prezzi rispetto alla media nazionale"><div className="legend-levels"><span className="price-lower"><i/> Sotto media</span><span className="price-average"><i/> In linea</span><span className="price-higher"><i/> Sopra media</span></div><small>{average===undefined?'Media non disponibile':'Media Italia '+average.toFixed(3).replace('.',',')+' €/'+quantityUnit(fuel)} · {fuel==='Gasolio'?'Diesel':fuel} {mode==='self'?'self':'servito'}</small><small className="legend-tolerance">In linea entro ±1 centesimo</small></div>
   {offline&&<div className="map-offline"><MapPin size={26}/><strong>La mappa si prende una pausa.</strong><span>I listini salvati sono disponibili nell’elenco.<br/>La cartografia torna quando sei online.</span></div>}
   {tileError&&!offline&&<div className="map-error" role="status"><MapPin size={18}/> La cartografia è temporaneamente indisponibile. Puoi consultare tutti i prezzi nell’elenco.</div>}
   {!ready&&<div className="map-loading"><span className="spinner"/> Apriamo la mappa…</div>}

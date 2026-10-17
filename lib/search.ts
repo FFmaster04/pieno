@@ -5,7 +5,7 @@ export type Province={id:string;name:string;plate:string};
 export type PlaceData={schema:number;asOf:string;municipalities:Municipality[];provinces:Province[]};
 export type AddressPlace={kind:'address';id:string;name:string;detail:string;lat:number;lng:number;radius:number};
 export type PlaceScope={kind:'city';place:Municipality}|{kind:'province';place:Municipality}|{kind:'postcode';code:string;places:Municipality[]}|AddressPlace;
-export type PlaceOption={id:string;label:string;detail:string;badge:string;scope:PlaceScope};
+export type PlaceOption={id:string;label:string;detail:string;badge:string;scope:PlaceScope;precision?:'house'|'street';houseNumber?:string};
 export const normalize=(s:string)=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 export function distance(a:[number,number],b:[number,number]){
  const r=Math.PI/180,dla=(b[0]-a[0])*r,dlo=(b[1]-a[1])*r,v=Math.sin(dla/2)**2+Math.cos(a[0]*r)*Math.cos(b[0]*r)*Math.sin(dlo/2)**2;
@@ -71,13 +71,13 @@ export function addressOptions(raw:unknown):PlaceOption[]{
  const features=(raw as {features?:any[]})?.features;if(!Array.isArray(features))return [];
  const seen=new Set<string>();const result:PlaceOption[]=[];
  for(const f of features){
-  const p=f?.properties,c=f?.geometry?.coordinates;if(p?.countrycode!=='IT'||!Array.isArray(c)||!c.every(Number.isFinite)||c.length!==2)continue;
+  const p=f?.properties,c=f?.geometry?.coordinates;if(p?.countrycode!=='IT'||!Array.isArray(c)||!c.every(Number.isFinite)||c.length!==2||c[1]<35||c[1]>48||c[0]<6||c[0]>20)continue;
   if(!p.street&&p.type!=='street'&&p.type!=='house'&&p.osm_key!=='highway')continue;
   const street=p.street||p.name;if(!street)continue;
   const name=street+(p.housenumber?' '+p.housenumber:''),city=p.city||p.town||p.village||p.county||'',key=normalize(name+' '+city+' '+(p.postcode||''));
   if(seen.has(key))continue;seen.add(key);
   const detail=[city,p.postcode,p.state].filter(Boolean).join(' · '),id='address-'+key;
-  result.push({id,label:name,detail,badge:'Indirizzo',scope:{kind:'address',id,name,detail,lat:c[1],lng:c[0],radius:3}});
+  result.push({id,label:name,detail,badge:p.housenumber?'Civico':'Strada',precision:p.housenumber?'house':'street',houseNumber:p.housenumber?String(p.housenumber):undefined,scope:{kind:'address',id,name,detail,lat:c[1],lng:c[0],radius:3}});
  }
  return result;
 }
