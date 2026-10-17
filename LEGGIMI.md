@@ -21,7 +21,7 @@ Il sito usa GitHub Pages con repository pubblico e runner GitHub Actions Ubuntu 
 
 Per replicare il progetto: crea un repository pubblico `pieno`, carica anche `.github`, seleziona **Settings → Pages → Source → GitHub Actions** e avvia il workflow “Prezzi giornalieri e sito”. Il dominio sarà `https://NOMEUTENTE.github.io/pieno/`.
 
-Il workflow controlla MIMIT ogni ora al minuto 17, dalle 07:17 alle 19:17 UTC, valida i dati, aggiorna lo storico, verifica il codice e pubblica il sito. Le esecuzioni pianificate possono essere ritardate da GitHub. In caso di errore resta online l’ultima versione valida. La ricevuta e le medie giornaliere vengono conservate nel repository; i file di pubblicazione scadono dopo un giorno.
+Il workflow controlla MIMIT ogni ora al minuto 17, dalle 07:17 alle 19:17 UTC, valida i dati, aggiorna lo storico, verifica il codice e pubblica il sito. Le esecuzioni pianificate possono essere ritardate da GitHub. In caso di errore resta online l’ultima versione valida. Quando si pubblicano modifiche al sito, un’interruzione di MIMIT può essere gestita riusando l’ultima copia pubblicata, dopo averne verificato integrità e data; le date originali restano invariate. I controlli pianificati continuano a segnalare gli errori in GitHub Actions. La ricevuta e le medie giornaliere vengono conservate nel repository; i file di pubblicazione scadono dopo un giorno.
 
 ## Dati e limiti
 

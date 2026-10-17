@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import {downloadCSVPair} from '../lib/update-source.mjs';
+import {downloadCSVPair,validatePublishedSnapshot} from '../lib/update-source.mjs';
+import {readFile} from 'node:fs/promises';
 const date=d=>'Estrazione del '+d+'\nidImpianto|descCarburante\n';
 let calls=[],delays=0;
 const texts=await downloadCSVPair({now:()=>new Date('2026-10-16T07:00:00Z'),retryDelay:1,delay:async()=>{delays++;},fetcher:async(url,options)=>{
@@ -15,3 +16,15 @@ await assert.rejects(()=>downloadCSVPair({attempts:2,delay:async()=>{},fetcher:a
 assert.equal(failedCalls,4);
 await assert.rejects(()=>downloadCSVPair({attempts:1,fetcher:async()=>({ok:true,text:async()=>'<html>non CSV</html>'})}),/allineate/);
 console.log('Verificati download senza cache, retry per pubblicazione sfalsata e rifiuto delle risposte non valide.');
+
+const snapshot=JSON.parse(await readFile(new URL('../public/data/initial.json',import.meta.url),'utf8'));
+const originalDates={sourceDate:snapshot.sourceDate,checkedAt:snapshot.checkedAt,fetchedAt:snapshot.fetchedAt};
+assert.equal(validatePublishedSnapshot(snapshot,snapshot.sourceDate),snapshot);
+assert.deepEqual({sourceDate:snapshot.sourceDate,checkedAt:snapshot.checkedAt,fetchedAt:snapshot.fetchedAt},originalDates);
+assert.throws(()=>validatePublishedSnapshot(snapshot,'2099-01-01'),/precedente/);
+assert.throws(()=>validatePublishedSnapshot({...snapshot,rows:snapshot.rows.slice(0,10)}),/non valida/);
+assert.throws(()=>validatePublishedSnapshot({...snapshot,priceCount:snapshot.priceCount-1}),/incompleta/);
+assert.throws(()=>validatePublishedSnapshot({...snapshot,checkedAt:'non una data'}),/non valida/);
+const corrupt=structuredClone(snapshot);corrupt.rows[0][9][0][1]=-1;
+assert.throws(()=>validatePublishedSnapshot(corrupt),/Listini/);
+console.log('Verificata copia pubblicata completa, senza regressioni o alterazione delle date.');
