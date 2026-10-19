@@ -20,7 +20,7 @@ jobs:
       - name: Installa collegamento libero di riserva
         run: |
           sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends tor
+          sudo apt-get install -y --no-install-recommends tor tor-geoipdb
       - name: Verifica HTTPS della fonte con uscita italiana
         run: |
           tor --RunAsDaemon 1 --ClientOnly 1 --SocksPort 127.0.0.1:9052 --ExitNodes '{it}' --StrictNodes 1 --ClientUseIPv6 0 --ReachableAddresses '*:80,*:443' --UseMicrodescriptors '${{ matrix.descriptors }}' --DataDirectory "$RUNNER_TEMP/pieno-tor" --Log "notice file $RUNNER_TEMP/pieno-tor.log"
