@@ -1,19 +1,20 @@
 import {writeFile,rename,readFile,mkdir,appendFile} from 'node:fs/promises';
 import {packDataset,unpackDataset} from '../lib/wire.mjs';
-import {downloadCSVPair,validatePublishedSnapshot,refreshDataset} from '../lib/update-source.mjs';
+import {downloadCSVPair,validatePublishedSnapshot,refreshDataset,newestValidSnapshot} from '../lib/update-source.mjs';
 import {fetchCSV} from '../lib/source-transport.mjs';
 const target=new URL('../public/data/initial.json',import.meta.url);
-let previous,minimumDate='',published;
-try{previous=unpackDataset(JSON.parse(await readFile(target,'utf8')));minimumDate=previous.sourceDate;}catch{}
+let previous,minimumDate='',published,localRaw,remoteRaw;
+try{localRaw=validatePublishedSnapshot(JSON.parse(await readFile(target,'utf8')));previous=unpackDataset(localRaw);minimumDate=previous.sourceDate;}catch{}
 try{const receipt=JSON.parse(await readFile(new URL('../.github/data-status.json',import.meta.url),'utf8'));if(receipt.sourceDate>minimumDate)minimumDate=receipt.sourceDate;}catch{}
 if(process.env.PREVIOUS_SNAPSHOT_URL){
  try{
   const r=await fetch(process.env.PREVIOUS_SNAPSHOT_URL,{cache:'no-store',signal:AbortSignal.timeout(15000)});
   if(!r.ok)throw Error('Copia pubblicata non raggiungibile: '+r.status);
-  published=unpackDataset(validatePublishedSnapshot(await r.json(),minimumDate));
-  if(!previous||published.sourceDate>previous.sourceDate)previous=published;
+  remoteRaw=await r.json();
  }catch(error){console.warn('Copia pubblicata non disponibile:',error.message);}
 }
+const bestBackup=newestValidSnapshot([localRaw,remoteRaw],minimumDate);
+if(bestBackup){published=unpackDataset(bestBackup);previous=published;}
 const {data:next,result,sourceError,sourceErrorDetail}=await refreshDataset({
  download:()=>downloadCSVPair({fetcher:fetchCSV,attempts:process.env.GITHUB_EVENT_NAME==='push'?1:3,retryDelay:20000}),
  published,minimumDate:previous&&previous.sourceDate>minimumDate?previous.sourceDate:minimumDate,

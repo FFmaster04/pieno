@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {downloadCSVPair,validatePublishedSnapshot,SourceUnavailableError,refreshDataset} from '../lib/update-source.mjs';
+import {downloadCSVPair,validatePublishedSnapshot,SourceUnavailableError,refreshDataset,newestValidSnapshot} from '../lib/update-source.mjs';
 import {readFile} from 'node:fs/promises';
 import {unpackDataset} from '../lib/wire.mjs';
 import {createCSVTransport} from '../lib/source-transport.mjs';
@@ -53,3 +53,10 @@ assert.equal(invocation[0],'curl');assert(invocation[1].includes('--ipv4'));asse
 await assert.rejects(()=>createCSVTransport(async()=>{throw Object.assign(Error('timeout'),{code:28});})('https://www.mimit.gov.it/example.csv'),SourceUnavailableError);
 await assert.rejects(()=>createCSVTransport(async()=>{throw Object.assign(Error('curl missing'),{code:'ENOENT'});})('https://www.mimit.gov.it/example.csv'),e=>!(e instanceof SourceUnavailableError)&&e.code==='ENOENT');
 console.log('Verificati recupero automatico durante le interruzioni, date originali, errori reali ancora bloccanti e trasporto HTTPS.');
+
+const older={...snapshot,sourceDate:'2026-10-01'};
+assert.equal(newestValidSnapshot([snapshot,older],snapshot.sourceDate),snapshot);
+assert.equal(newestValidSnapshot([older,snapshot],snapshot.sourceDate),snapshot);
+assert.equal(newestValidSnapshot([{...snapshot,rows:[]},snapshot],snapshot.sourceDate),snapshot);
+assert.equal(newestValidSnapshot([snapshot],'2099-01-01'),undefined);
+console.log('Verificata selezione del backup valido più recente, anche quando la copia locale è più nuova del sito.');
