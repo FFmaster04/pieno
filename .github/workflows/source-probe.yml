@@ -9,15 +9,25 @@ permissions:
   contents: read
 jobs:
   probe:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-24.04-arm, windows-latest]
-    runs-on: ${{ matrix.os }}
-    timeout-minutes: 3
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - run: node scripts/probe-source.mjs
+      - name: Installa collegamento libero di riserva
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends tor
+      - name: Verifica HTTPS della fonte con uscita italiana
+        run: |
+          tor --RunAsDaemon 1 --ClientOnly 1 --SocksPort 127.0.0.1:9052 --ExitNodes '{it}' --StrictNodes 1 --DataDirectory "$RUNNER_TEMP/pieno-tor" --Log "notice file $RUNNER_TEMP/pieno-tor.log"
+          for i in $(seq 1 45); do
+            if grep -q 'Bootstrapped 100%' "$RUNNER_TEMP/pieno-tor.log"; then break; fi
+            sleep 2
+          done
+          tail -5 "$RUNNER_TEMP/pieno-tor.log"
+          for file in anagrafica_impianti_attivi.csv prezzo_alle_8.csv; do
+            curl --silent --show-error --fail --location --proto '=https' --proto-redir '=https' --socks5-hostname 127.0.0.1:9052 --connect-timeout 45 --max-time 120 "https://www.mimit.gov.it/images/exportCSV/$file" --output "$RUNNER_TEMP/$file"
+            head -2 "$RUNNER_TEMP/$file"
+            sha256sum "$RUNNER_TEMP/$file"
+            wc -c "$RUNNER_TEMP/$file"
+          done
