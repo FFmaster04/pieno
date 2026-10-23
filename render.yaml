@@ -1,0 +1,15 @@
+# Only a Free web service. No paid jobs, database, disk, domain, or auto-upgrade.
+services:
+  - type: web
+    name: pieno-dati
+    runtime: node
+    region: frankfurt
+    plan: free
+    numInstances: 1
+    autoDeployTrigger: off
+    buildCommand: node --check scripts/serve-data.mjs
+    startCommand: node scripts/serve-data.mjs
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "22"

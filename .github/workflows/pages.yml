@@ -25,6 +25,7 @@ jobs:
       - name: Scarica e valida i dati MIMIT
         env:
           PREVIOUS_SNAPSHOT_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/data/initial.json
+          SNAPSHOT_FEED_URL: ${{ vars.SNAPSHOT_FEED_URL }}
         run: node scripts/update-data.mjs
       - name: Conserva lo storico delle medie
         run: node scripts/record-history.mjs
@@ -35,6 +36,7 @@ jobs:
           npm run check-search
           npm run check-experience
           npm run check-update
+          node scripts/check-feed.mjs
           node node_modules/typescript/bin/tsc --noEmit
       - name: Crea il sito statico
         env:

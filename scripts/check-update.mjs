@@ -31,7 +31,7 @@ const corrupt=structuredClone(snapshot);corrupt.rows[0][9][0][1]=-1;
 assert.throws(()=>validatePublishedSnapshot(corrupt),/Listini/);
 console.log('Verificata copia pubblicata completa, senza regressioni o alterazione delle date.');
 
-// Source outages must not trigger a failed hourly run, but broken code, corrupt
+// Source outages must not trigger a failed scheduled run, but broken code, corrupt
 // responses, missing backups and date regressions must remain real failures.
 const published=unpackDataset(snapshot),unavailable=new SourceUnavailableError('Timeout',{code:'MIMIT_CONNECTION'});
 const cached=await refreshDataset({download:async()=>{throw unavailable;},published,minimumDate:published.sourceDate});

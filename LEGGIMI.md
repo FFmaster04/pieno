@@ -21,7 +21,7 @@ Il sito usa GitHub Pages con repository pubblico e runner GitHub Actions Ubuntu 
 
 Per replicare il progetto: crea un repository pubblico `pieno`, carica anche `.github`, seleziona **Settings → Pages → Source → GitHub Actions** e avvia il workflow “Prezzi giornalieri e sito”. Il dominio sarà `https://NOMEUTENTE.github.io/pieno/`.
 
-Il 23 ottobre GitHub ha riattivato il profilo dopo una segnalazione antispam automatica. Il workflow diagnostico di rete e il relativo script sono stati rimossi dal repository. Il progetto usa solo il collegamento HTTPS diretto ai due CSV ufficiali MIMIT. Il sito è ripristinato con l'estrazione del 22 ottobre 2026.
+Il 23 ottobre GitHub ha riattivato il profilo dopo una segnalazione antispam automatica. Il workflow diagnostico di rete e il relativo script sono stati rimossi dal repository. Sono stati eliminati gli esperimenti di rete: il progetto legge esclusivamente i dati ufficiali MIMIT, direttamente o tramite il proprio servizio di acquisizione. Il sito è ripristinato con l'estrazione del 22 ottobre 2026.
 
 Il workflow “Prezzi giornalieri e sito” è pianificato alle 08:23 e 14:23 UTC: una pubblicazione quotidiana e un secondo tentativo se la fonte esce in ritardo. Le esecuzioni possono essere ritardate da GitHub. Dopo un controllo riuscito nella giornata italiana con l'estrazione attesa vengono evitati ulteriori download pianificati. Le modifiche al codice avviano comunque la verifica e la pubblicazione.
 
@@ -30,6 +30,23 @@ Alla verifica del 23 ottobre il Ministero rimane raggiungibile dal computer loca
 In caso di interruzione viene riutilizzata la copia valida più recente, conservandone le date originali. Il riepilogo di ogni esecuzione distingue un download riuscito dal recupero della copia. Il controllo “Verifica giornaliera prezzi online”, alle 20:47 UTC, verifica la data e l'integrità del file realmente pubblicato e segnala una copia più vecchia dell'estrazione attesa del giorno precedente. La data resta nella sezione “Dettagli dati”.
 
 Il repository deve restare pubblico e usare runner standard. Non sono configurati acquisti, abbonamenti o servizi a pagamento.
+
+## Servizio di acquisizione separato (preparato, da attivare e verificare)
+
+`render.yaml` definisce un unico **Web Service Free**, in **Frankfurt**, Node.js 22, senza database, dischi, cron a pagamento o dominio acquistato. Non aggiungere una carta o un altro metodo di pagamento e non scegliere un piano diverso da Free. Se Render chiede una carta per la verifica dell'account, interrompere la procedura: non è compatibile con il vincolo di questo progetto. La documentazione ufficiale conferma che senza un metodo di pagamento il superamento delle quote sospende il servizio invece di generare addebiti: https://render.com/docs/free e https://render.com/docs/faq.
+
+Il servizio non è un proxy generico: acquisisce solo i due CSV pubblici MIMIT, li riconcilia e restituisce il dataset completo nel formato di pieno, con le date originali. Risposte incomplete, dati precedenti e date future vengono rifiutati. Le richieste simultanee condividono lo stesso download; quelle successive nella stessa giornata riusano la copia validata. Dopo un errore viene rispettata una pausa. Il sito pubblico continua a essere servito da GitHub Pages; i visitatori non dipendono dai tempi di avvio del servizio dati.
+
+Attivazione dopo aver creato un account Render gratuito e accettato personalmente le sue condizioni:
+
+1. Aprire https://render.com/deploy?repo=https%3A%2F%2Fgithub.com%2FFFmaster04%2Fpieno e controllare che l'unico servizio proposto sia **pieno-dati**, **Free**, **Frankfurt**, senza metodo di pagamento. In alternativa usare New → Web Service, repository pubblico https://github.com/FFmaster04/pieno, build `node --check scripts/serve-data.mjs`, avvio `node scripts/serve-data.mjs`, Node 22 e health check `/healthz`.
+2. Dopo l'avvio verificare l'URL assegnato da Render, percorso `/data/initial.json`: deve restituire l'estrazione ufficiale attesa, non soltanto `/healthz` con stato ready. Il collegamento MIMIT da Frankfurt va provato: il codice pronto non dimostra che l'host riesca a raggiungere la fonte.
+3. Solo dopo il test riuscito impostare la variabile GitHub Actions **SNAPSHOT_FEED_URL** con l'URL HTTPS completo del dataset e avviare “Prezzi giornalieri e sito”. Nel riepilogo devono comparire `result: updated`, `sourceRoute: data-service`, la data attesa e un controllo MIMIT riuscito di oggi.
+4. Verificare infine `/pieno/data/initial.json` pubblicato su Pages e il controllo serale di freschezza. Non basta un deploy verde.
+
+Il servizio dorme dopo 15 minuti senza traffico e si risveglia con la richiesta pianificata di GitHub, senza richieste artificiali per tenerlo acceso. È normale attendere il riavvio: il lettore supporta avvio a freddo e un secondo tentativo. La memoria viene persa durante lo stop; ogni nuova acquisizione viene validata nuovamente. Il piano gratuito non fornisce garanzie di disponibilità. Se il servizio non risponde, GitHub riprova la fonte diretta e conserva soltanto una copia pubblicata valida, senza cambiare le date.
+
+Verifiche locali: `node scripts/check-feed.mjs`, oltre ai controlli esistenti. Avvio manuale del servizio: `node scripts/serve-data.mjs`; porta predefinita 10000, oppure `PORT` assegnata dal provider. Non servono chiavi API né accesso in scrittura all'account GitHub.
 
 ## Dati e limiti
 

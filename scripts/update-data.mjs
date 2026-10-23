@@ -3,6 +3,9 @@ import {packDataset,unpackDataset} from '../lib/wire.mjs';
 import {downloadCSVPair,validatePublishedSnapshot,refreshDataset,newestValidSnapshot} from '../lib/update-source.mjs';
 import {fetchCSV} from '../lib/source-transport.mjs';
 import {calendarDayInItaly,snapshotFreshness} from '../lib/freshness.mjs';
+import {buildDataset} from '../lib/fuel-data.mjs';
+import {fetchSnapshotFeed} from '../lib/snapshot-feed.mjs';
+import {SourceUnavailableError} from '../lib/update-source.mjs';
 const target=new URL('../public/data/initial.json',import.meta.url);
 let previous,minimumDate='',published,localRaw,remoteRaw;
 try{localRaw=validatePublishedSnapshot(JSON.parse(await readFile(target,'utf8')));previous=unpackDataset(localRaw);minimumDate=previous.sourceDate;}catch{}
@@ -22,7 +25,13 @@ if(bestBackup){published=unpackDataset(bestBackup);previous=published;}
 const alreadyCurrent=process.env.GITHUB_EVENT_NAME==='schedule'&&published&&snapshotFreshness(published).fresh&&calendarDayInItaly(new Date(published.checkedAt))===calendarDayInItaly();
 let sourceRoute='none';
 const {data:next,result,sourceError,sourceErrorDetail}=alreadyCurrent?{data:published,result:'current'}:await refreshDataset({
- download:async()=>{const texts=await downloadCSVPair({fetcher:fetchCSV,attempts:process.env.GITHUB_EVENT_NAME==='push'?1:3,retryDelay:20000});sourceRoute='direct';return texts;},
+ load:async()=>{
+  if(process.env.SNAPSHOT_FEED_URL){
+   try{const raw=await fetchSnapshotFeed(process.env.SNAPSHOT_FEED_URL,{minimumDate});sourceRoute='data-service';return unpackDataset(raw);}
+   catch(error){if(!(error instanceof SourceUnavailableError))throw error;console.warn('Servizio dati momentaneamente non disponibile; provo il collegamento diretto:',error.message);}
+  }
+  const texts=await downloadCSVPair({fetcher:fetchCSV,attempts:process.env.SNAPSHOT_FEED_URL||process.env.GITHUB_EVENT_NAME==='push'?1:3,retryDelay:20000});sourceRoute='direct';return buildDataset(...texts);
+ },
  published,minimumDate:previous&&previous.sourceDate>minimumDate?previous.sourceDate:minimumDate,
 });
 if(result==='cached'){console.warn('::warning::Fonte MIMIT temporaneamente non disponibile: conservata l’ultima copia valida. Un nuovo controllo partirà automaticamente.');console.warn(sourceErrorDetail);}

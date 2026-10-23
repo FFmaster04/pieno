@@ -1,0 +1,51 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {fetchSnapshotFeed} from '../lib/snapshot-feed.mjs';
+import {createSnapshotProvider} from '../lib/data-service.mjs';
+import {SourceUnavailableError,refreshDataset} from '../lib/update-source.mjs';
+import {unpackDataset} from '../lib/wire.mjs';
+
+const original=JSON.parse(await readFile(new URL('../public/data/initial.json',import.meta.url),'utf8'));
+const snapshot={...original,sourceDate:'2026-10-22',checkedAt:'2026-10-23T12:00:00.000Z',fetchedAt:'2026-10-23T12:00:00.000Z'};
+const now=()=>new Date('2026-10-23T14:00:00Z');
+const json=value=>new Response(JSON.stringify(value),{headers:{'Content-Type':'application/json'}});
+const options={now,attempts:1,minimumDate:'2026-10-22'};
+let request;
+const result=await fetchSnapshotFeed('https://example.onrender.com/data/initial.json',{...options,fetcher:async(...args)=>{request=args;return json(snapshot);}});
+assert.deepEqual(result,snapshot);assert.equal(request[1].redirect,'error');assert.equal(request[1].cache,'no-store');
+assert.equal(result.checkedAt,snapshot.checkedAt);
+await assert.rejects(()=>fetchSnapshotFeed('http://example.com/data/initial.json',options),/HTTPS/);
+await assert.rejects(()=>fetchSnapshotFeed('https://user:password@example.com/data/initial.json',options),/credenziali/);
+await assert.rejects(()=>fetchSnapshotFeed('https://example.com/',{...options,fetcher:async()=>json({...snapshot,rows:[]})}),/non valida/);
+await assert.rejects(()=>fetchSnapshotFeed('https://example.com/',{...options,fetcher:async()=>json({...snapshot,sourceDate:'2026-10-21'})}),/precedente/);
+await assert.rejects(()=>fetchSnapshotFeed('https://example.com/',{...options,minimumDate:'',fetcher:async()=>json({...snapshot,sourceDate:'2026-10-21'})}),e=>e.code==='FEED_STALE');
+await assert.rejects(()=>fetchSnapshotFeed('https://example.com/',{...options,fetcher:async()=>json({...snapshot,checkedAt:'2026-10-24T00:00:00Z'})}),/futuro/);
+await assert.rejects(()=>fetchSnapshotFeed('https://example.com/',{...options,fetcher:async()=>json({...snapshot,checkedAt:'2026-10-22T12:00:00Z'})}),e=>e.code==='FEED_CHECK_STALE');
+await assert.rejects(()=>fetchSnapshotFeed('https://example.com/',{...options,maxBytes:100,fetcher:async()=>json(snapshot)}),/troppo grande/);
+await assert.rejects(()=>fetchSnapshotFeed('https://example.com/',{...options,fetcher:async()=>new Response('{}',{status:404})}),e=>!(e instanceof SourceUnavailableError)&&/404/.test(e.message));
+await assert.rejects(()=>fetchSnapshotFeed('https://example.com/',{...options,fetcher:async()=>new Response('<html>starting</html>',{headers:{'Content-Type':'text/html'}})}),e=>e.code==='FEED_WARMING');
+await assert.rejects(()=>fetchSnapshotFeed('https://example.com/',{...options,fetcher:async()=>new Response('broken',{headers:{'Content-Type':'application/json'}})}),SyntaxError);
+let attempts=0,delays=0;
+assert.equal((await fetchSnapshotFeed('https://example.com/',{...options,attempts:2,delay:async()=>{delays++;},fetcher:async()=>++attempts===1?new Response('{}',{status:503}):json(snapshot)})).sourceDate,'2026-10-22');
+assert.equal(attempts,2);assert.equal(delays,1);
+await assert.rejects(()=>fetchSnapshotFeed('https://example.com/',{...options,fetcher:async()=>{throw new TypeError('fetch failed',{cause:{code:'ETIMEDOUT'}});}}),e=>e.code==='FEED_CONNECTION');
+assert.equal((await refreshDataset({load:async()=>unpackDataset(snapshot),minimumDate:snapshot.sourceDate})).result,'updated');
+console.log('Verificati servizio HTTPS, avvio a freddo, retry, limite risposta, prezzi completi, date reali e rifiuto di dati corrotti o precedenti.');
+
+const registry=['idImpianto|Gestore|Bandiera|Tipo|Nome|Indirizzo|Comune|Provincia|Latitudine|Longitudine'];
+const prices=['idImpianto|descCarburante|prezzo|isSelf|dtComu'];
+for(let id=1;id<=10000;id++){
+ registry.push(`${id}|Gestore|Marchio|Stradale|Impianto ${id}|Via Roma 1|Lecce|LE|40.35|18.17`);
+ for(const fuel of ['Benzina','Gasolio','GPL','Metano'])prices.push(`${id}|${fuel}|1.7|1|22/10/2026 08:00:00`);
+}
+let clock=new Date('2026-10-23T14:00:00Z'),day='2026-10-22',downloads=0;
+const provider=createSnapshotProvider({now:()=>clock,download:async()=>{downloads++;await new Promise(resolve=>setImmediate(resolve));return [`Estrazione del ${day}\n${registry.join('\n')}`,`Estrazione del ${day}\n${prices.join('\n')}`];}});
+const [first,parallel]=await Promise.all([provider(),provider()]);
+assert.equal(first,parallel);assert.equal(downloads,1);assert.equal(first.rows.length,10000);assert.equal(first.priceCount,40000);
+assert.equal(await provider(),first);assert.equal(downloads,1);
+clock=new Date('2026-10-24T14:00:00Z');
+await assert.rejects(provider,e=>e.code==='FEED_STALE');assert.equal(downloads,2);
+await assert.rejects(provider,e=>e.code==='FEED_COOLDOWN');assert.equal(downloads,2);
+clock=new Date('2026-10-24T14:11:00Z');day='2026-10-23';
+const next=await provider();assert.equal(next.sourceDate,day);assert.equal(downloads,3);assert.notEqual(next.checkedAt,first.checkedAt);
+console.log('Verificati acquisizione unica con richieste parallele, cache giornaliera, passaggio di giorno e pausa dopo un errore della fonte.');
