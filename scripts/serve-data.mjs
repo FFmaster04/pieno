@@ -3,9 +3,10 @@ import {setDefaultResultOrder} from 'node:dns';
 import {gzipSync} from 'node:zlib';
 import {downloadCSVPair,SourceUnavailableError} from '../lib/update-source.mjs';
 import {createSnapshotProvider} from '../lib/data-service.mjs';
+import {fetchCSV} from '../lib/source-transport.mjs';
 
 setDefaultResultOrder('ipv4first');
-const getSnapshot=createSnapshotProvider({download:()=>downloadCSVPair({attempts:2,retryDelay:10000})});
+const getSnapshot=createSnapshotProvider({download:()=>downloadCSVPair({fetcher:fetchCSV,attempts:2,retryDelay:10000})});
 let lastSnapshot,plain,gzip;
 const server=createServer(async(req,res)=>{
  res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('X-Robots-Tag','noindex, nofollow');
