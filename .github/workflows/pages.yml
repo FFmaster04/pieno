@@ -4,8 +4,8 @@ on:
     branches: [main]
   workflow_dispatch:
   schedule:
-    # Check hourly during the publication day. All times are UTC.
-    - cron: '17 7-19 * * *'
+    # Daily publication plus one retry for late MIMIT publication. UTC.
+    - cron: '23 8,14 * * *'
 permissions:
   contents: write
   pages: write
