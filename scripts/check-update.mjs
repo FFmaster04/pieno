@@ -60,3 +60,16 @@ assert.equal(newestValidSnapshot([older,snapshot],snapshot.sourceDate),snapshot)
 assert.equal(newestValidSnapshot([{...snapshot,rows:[]},snapshot],snapshot.sourceDate),snapshot);
 assert.equal(newestValidSnapshot([snapshot],'2099-01-01'),undefined);
 console.log('Verificata selezione del backup valido più recente, anche quando la copia locale è più nuova del sito.');
+
+const {calendarDayInItaly,expectedSourceDate,snapshotFreshness}=await import('../lib/freshness.mjs');
+assert.equal(calendarDayInItaly(new Date('2026-10-18T22:30:00Z')),'2026-10-19');
+assert.equal(expectedSourceDate(new Date('2026-10-19T14:00:00Z')),'2026-10-18');
+assert.equal(expectedSourceDate(new Date('2026-01-01T00:00:00Z')),'2025-12-31');
+assert.equal(expectedSourceDate(new Date('2028-03-01T12:00:00Z')),'2028-02-29');
+assert.equal(expectedSourceDate(new Date('2026-03-29T22:30:00Z')),'2026-03-29');
+assert.equal(expectedSourceDate(new Date('2026-10-25T23:30:00Z')),'2026-10-25');
+assert(snapshotFreshness({sourceDate:'2026-10-18'},new Date('2026-10-19T14:00:00Z')).fresh);
+assert(!snapshotFreshness({sourceDate:'2026-10-15'},new Date('2026-10-19T14:00:00Z')).fresh);
+assert.throws(()=>snapshotFreshness({sourceDate:'2026-10-20'},new Date('2026-10-19T14:00:00Z')),/non valida/);
+assert.throws(()=>snapshotFreshness({sourceDate:'2026-02-31'}),/non valida/);
+console.log('Verificati controllo della data realmente online, fuso italiano, cambio di anno, anno bisestile e ora legale.');

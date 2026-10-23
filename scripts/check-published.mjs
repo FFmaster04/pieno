@@ -1,0 +1,12 @@
+import {appendFile} from 'node:fs/promises';
+import {validatePublishedSnapshot} from '../lib/update-source.mjs';
+import {snapshotFreshness} from '../lib/freshness.mjs';
+const url=new URL(process.env.PUBLISHED_SNAPSHOT_URL||'https://ffmaster04.github.io/pieno/data/initial.json');
+url.searchParams.set('freshness_check',Date.now());
+const response=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(30000)});
+if(!response.ok)throw Error('Il sito pubblicato non risponde: '+response.status);
+const snapshot=validatePublishedSnapshot(await response.json());
+const status=snapshotFreshness(snapshot);
+console.log(JSON.stringify(status));
+if(process.env.GITHUB_STEP_SUMMARY)await appendFile(process.env.GITHUB_STEP_SUMMARY,'### Verifica dei prezzi realmente online\n\n- Estrazione online: '+status.sourceDate+'\n- Estrazione attesa almeno: '+status.expectedSourceDate+'\n- Ultima lettura riuscita: '+status.lastSuccessfulCheck+'\n- Esito: '+(status.fresh?'aggiornati':'DA AGGIORNARE')+'\n');
+if(!status.fresh)throw Error('I dati online sono fermi al '+status.sourceDate+'; è attesa almeno l’estrazione del '+status.expectedSourceDate+'.');

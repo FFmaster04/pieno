@@ -21,13 +21,23 @@ Il sito usa GitHub Pages con repository pubblico e runner GitHub Actions Ubuntu 
 
 Per replicare il progetto: crea un repository pubblico `pieno`, carica anche `.github`, seleziona **Settings → Pages → Source → GitHub Actions** e avvia il workflow “Prezzi giornalieri e sito”. Il dominio sarà `https://NOMEUTENTE.github.io/pieno/`.
 
-Il workflow controlla MIMIT ogni ora al minuto 17, dalle 07:17 alle 19:17 UTC, valida i dati, aggiorna lo storico, verifica il codice e pubblica il sito. Le esecuzioni pianificate possono essere ritardate da GitHub. In caso di errore resta online l’ultima versione valida. Quando si pubblicano modifiche al sito, un’interruzione di MIMIT può essere gestita riusando l’ultima copia pubblicata, dopo averne verificato integrità e data; le date originali restano invariate. Anche i controlli pianificati gestiscono così timeout, interruzioni e file ministeriali temporaneamente non allineati: lasciano un avviso e un riepilogo nei log, senza generare fallimenti ripetuti. Errori di codice, formato dei dati, validazione o assenza di una copia valida continuano invece a far fallire il controllo. Il download usa curl con timeout di connessione esplicito e verifica HTTPS attiva. La ricevuta e le medie giornaliere vengono conservate nel repository; i file di pubblicazione scadono dopo un giorno.
+Il 23 ottobre GitHub ha riattivato il profilo dopo una segnalazione antispam automatica. Il workflow diagnostico di rete e il relativo script sono stati rimossi dal repository. Il progetto usa solo il collegamento HTTPS diretto ai due CSV ufficiali MIMIT. Il sito è ripristinato con l'estrazione del 22 ottobre 2026.
+
+Il workflow “Prezzi giornalieri e sito” è pianificato alle 08:23 e 14:23 UTC: una pubblicazione quotidiana e un secondo tentativo se la fonte esce in ritardo. Le esecuzioni possono essere ritardate da GitHub. Dopo un controllo riuscito nella giornata italiana con l'estrazione attesa vengono evitati ulteriori download pianificati. Le modifiche al codice avviano comunque la verifica e la pubblicazione.
+
+Alla verifica del 23 ottobre il Ministero rimane raggiungibile dal computer locale ma non dai runner GitHub, dove la connessione scade. La pubblicazione dell'estrazione del 22 ottobre è stata preparata da un download locale validato. L'acquisizione automatica quotidiana dal server rimane da risolvere e non va considerata verificata solo perché la pubblicazione del sito termina con successo.
+
+In caso di interruzione viene riutilizzata la copia valida più recente, conservandone le date originali. Il riepilogo di ogni esecuzione distingue un download riuscito dal recupero della copia. Il controllo “Verifica giornaliera prezzi online”, alle 20:47 UTC, verifica la data e l'integrità del file realmente pubblicato e segnala una copia più vecchia dell'estrazione attesa del giorno precedente. La data resta nella sezione “Dettagli dati”.
+
+Il repository deve restare pubblico e usare runner standard. Non sono configurati acquisti, abbonamenti o servizi a pagamento.
 
 ## Dati e limiti
 
 MIMIT pubblica una fotografia dei prezzi delle 8 del giorno precedente. I singoli listini conservano la propria data e possono essere incompleti o datati. Le nostre medie includono la rete stradale nazionale, escludono le autostrade e i listini oltre 7 giorni dall’estrazione; sono separate per carburante e modalità e non coincidono con le medie regionali ufficiali.
 
-I segnaposto e i prezzi nell’elenco sono verdi sotto la media nazionale dello stesso carburante e modalità, arancioni entro ±0,01 €/l o €/kg e rossi sopra tale fascia. Le frecce e la legenda rendono il significato leggibile anche senza colore. Nei gruppi il prezzo “da” usa il colore del minimo; senza media viene usato un colore neutro. La ricerca per indirizzo completo usa la ricerca strutturata Photon, con cache temporanea e invio solo dopo una conferma esplicita.\n\nIl filtro città usa il comune dichiarato nell’anagrafica MIMIT. Nei comuni con più CAP vengono usati solo i CAP espliciti e coerenti nell’indirizzo; i risultati possono essere incompleti. Le distanze sono in linea d’aria e i costi del pieno non comprendono il tragitto.
+I segnaposto e i prezzi nell’elenco sono verdi sotto la media nazionale dello stesso carburante e modalità, arancioni entro ±0,01 €/l o €/kg e rossi sopra tale fascia. Le frecce e la legenda rendono il significato leggibile anche senza colore. Nei gruppi il prezzo “da” usa il colore del minimo; senza media viene usato un colore neutro. La ricerca per indirizzo completo usa la ricerca strutturata Photon, con cache temporanea e invio solo dopo una conferma esplicita.
+
+Il filtro città usa il comune dichiarato nell’anagrafica MIMIT. Nei comuni con più CAP vengono usati solo i CAP espliciti e coerenti nell’indirizzo; i risultati possono essere incompleti. Le distanze sono in linea d’aria e i costi del pieno non comprendono il tragitto.
 
 La consultazione offline usa soltanto dati e file di pieno. Non vengono scaricate mappe per l’uso offline. Il browser può rimuovere la copia locale se vengono cancellati i dati del sito o manca spazio sul dispositivo.
 

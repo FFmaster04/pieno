@@ -1,0 +1,24 @@
+name: Verifica giornaliera prezzi online
+on:
+  schedule:
+    # One final check per day, late in the Italian evening.
+    - cron: '47 20 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: daily-freshness
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verifica data e integrità dei prezzi pubblicati
+        env:
+          PUBLISHED_SNAPSHOT_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/data/initial.json
+        run: node scripts/check-published.mjs
