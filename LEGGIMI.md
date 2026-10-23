@@ -31,7 +31,11 @@ In caso di interruzione viene riutilizzata la copia valida più recente, conserv
 
 Il repository deve restare pubblico e usare runner standard. Non sono configurati acquisti, abbonamenti o servizi a pagamento.
 
-## Servizio di acquisizione separato (preparato, da attivare e verificare)
+## Servizio di acquisizione separato (attivato, collegamento MIMIT non riuscito)
+
+Il 23 ottobre è stato attivato **https://pieno-dati.onrender.com** nel workspace Hobby, con servizio Free a Frankfurt. Dal pannello Billing sono stati verificati **nessuna carta registrata**, costo attuale e previsto **0,00 USD**. Le due pubblicazioni Render sono riuscite; i test reali di acquisizione sono invece falliti: prima con il trasporto Node e poi con il trasporto HTTPS condiviso, con timeout di connessione al MIMIT dopo 30 secondi. Il servizio **non è stato impostato come fonte di GitHub**. Non considerare risolto l'aggiornamento quotidiano.
+
+Il servizio è `srv-dbdt9rt9fdbs738jesb0`; reti pubbliche di uscita Render dichiarate nel pannello: `74.220.51.0/24` e `74.220.59.0/24`, condivise con altri servizi. Il codice attualmente attivo è il commit `fd23aa8289a8c3a6408186b8775f327d78f3d117`. Il passo successivo è chiarire la raggiungibilità della fonte con il supporto MIMIT o reperire un hosting italiano conforme ai termini e realmente gratuito. Non riprendere esperimenti con Tor, proxy pubblici, servizi a pagamento o copie parziali spacciate per complete.
 
 `render.yaml` definisce un unico **Web Service Free**, in **Frankfurt**, Node.js 22, senza database, dischi, cron a pagamento o dominio acquistato. Non aggiungere una carta o un altro metodo di pagamento e non scegliere un piano diverso da Free. Se Render chiede una carta per la verifica dell'account, interrompere la procedura: non è compatibile con il vincolo di questo progetto. La documentazione ufficiale conferma che senza un metodo di pagamento il superamento delle quote sospende il servizio invece di generare addebiti: https://render.com/docs/free e https://render.com/docs/faq.
 
