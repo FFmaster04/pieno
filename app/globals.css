@@ -288,3 +288,10 @@
 .map-discovery:not(.is-preview) .discovery-bottom>button{grid-column:2;grid-row:2;align-self:center;gap:4px;padding:6px 7px;border:1px solid var(--atlas-border);border-radius:8px;min-height:34px;font-size:8px}
 .map-discovery:not(.is-preview) .discovery-bottom>button:hover{background:#8aa15b20}
 @media(max-width:600px){.map-discovery:not(.is-preview){width:226px}.map-discovery .discovery-saving{font-size:8px}.map-discovery .discovery-saving>span{font-size:7px}}
+
+.map-discovery .discovery-kicker{padding-right:20px}
+.map-discovery .discovery-close{position:absolute;top:4px;right:4px;display:grid;place-items:center;width:24px;height:24px;padding:5px;margin:0;border-radius:6px;color:var(--atlas-muted)}
+.map-discovery .discovery-close:hover{background:#8aa15b25;color:var(--atlas-text)}
+.map-atlas .map-best-toggle{display:grid;place-items:center;width:42px;height:42px;border:1px solid var(--atlas-border);border-radius:11px;background:var(--atlas-panel);color:var(--atlas-accent);box-shadow:0 5px 16px #0002;backdrop-filter:blur(16px)}
+.map-atlas .map-best-toggle:hover{background:#73875933}
+@media(max-width:600px){.map-atlas .map-best-toggle{width:40px}}
