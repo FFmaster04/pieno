@@ -1,3 +1,4 @@
+import {summarizeMap,groupMapItems} from '../lib/map-experience.ts';
 import {priceLevel} from '../lib/price-level.ts';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
@@ -51,3 +52,31 @@ assert.equal(priceLevel(undefined,1.9),'unknown');
 console.log('Verificati i tre colori rispetto alla media, estremi della fascia ±1 centesimo e assenza di media.');
 assert.equal(priceLevel(2.045,2.03474),'average');
 assert.equal(priceLevel(2.046,2.03474),'higher');
+
+// A cheaper station just outside the viewport must not win the visible-area recommendation.
+const mapBounds={south:40,north:41,west:18,east:19,zoom:12};
+const mapItems=[
+ {station:{id:8,lat:40.5,lng:18.5},price:{price:1.9}},
+ {station:{id:7,lat:40.6,lng:18.6},price:{price:1.9}},
+ {station:{id:9,lat:40,lng:19},price:{price:2.01}},
+ {station:{id:2,lat:39.9,lng:18.5},price:{price:1.2}},
+ {station:{id:1,lat:40.5,lng:19.01},price:{price:1.1}}
+];
+const mapSummary=summarizeMap(mapItems,mapBounds,2);
+assert.equal(mapSummary.best.station.id,7);assert.equal(mapSummary.total,3);assert.equal(mapSummary.lower,2);
+assert.equal(summarizeMap([...mapItems].reverse(),mapBounds,2).best.station.id,7);
+assert.equal(summarizeMap(mapItems,mapBounds,undefined).lower,0);
+assert.equal(summarizeMap(mapItems,null,2).best,null);
+assert.deepEqual(summarizeMap([],mapBounds,2),{best:null,total:0,lower:0});
+console.log('Verificati minimo e conteggi nella sola area visibile, confini, parità, media assente e mappa vuota.');
+
+const clusterInput=Array.from({length:200},(_,i)=>({station:{id:i,lat:40+i*.001,lng:18+i*.001},price:{price:1.7+i*.002}}));
+const projected=i=>({x:(i.station.id%20)*25,y:Math.floor(i.station.id/20)*20});
+const clusters=groupMapItems(clusterInput,projected);
+assert.deepEqual(clusters.flat().map(e=>e.station.id).sort((a,b)=>a-b),clusterInput.map(e=>e.station.id));
+for(let i=0;i<clusters.length;i++){
+ assert.equal(clusters[i][0].price.price,Math.min(...clusters[i].map(e=>e.price.price)));
+ for(let j=0;j<i;j++){const a=projected(clusters[i][0]),b=projected(clusters[j][0]);assert(Math.abs(a.x-b.x)>=116||Math.abs(a.y-b.y)>=78,'Marker anchors overlap');}
+}
+assert.deepEqual(groupMapItems([...clusterInput].reverse(),projected),clusters);
+console.log('Verificati gruppi senza sovrapposizioni, ancoraggio al minimo e accesso a tutti i distributori.');
