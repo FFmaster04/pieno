@@ -263,3 +263,28 @@
 .near-button[aria-busy=true]{opacity:.8;cursor:progress}
 .map-atlas .locate-map.has-location{color:#8dbbff;border-color:#79a7e955}
 .map-theme-day .locate-map.has-location{color:#2767b8;border-color:#307aeb55}
+
+/* Keep the map recommendation small; full fill totals appear in the chosen station's preview. */
+.map-discovery{right:auto;width:248px;max-width:calc(100% - 24px);padding:10px 12px 0;border-radius:12px}
+.map-discovery .discovery-kicker{min-height:13px;font-size:6.5px;letter-spacing:.75px;gap:6px}
+.map-discovery .discovery-main{gap:10px;margin:7px 0 8px}
+.map-discovery .discovery-price{font-size:25px;letter-spacing:-1px}
+.map-discovery .discovery-price>small{font-size:9px;margin-left:5px}
+.map-discovery .discovery-brand{font-size:9px;margin-top:3px}
+.map-discovery .discovery-total{padding-left:10px}
+.map-discovery .discovery-total>strong{font-size:19px;margin-top:4px}
+.map-discovery .discovery-total>span{font-size:5.5px;letter-spacing:.3px}
+.map-discovery .discovery-address{font-size:9px;margin-bottom:8px}
+.map-discovery .discovery-bottom{padding:6px 0}
+.map-discovery .discovery-bottom>button{font-size:9px;min-height:30px}
+.map-discovery:not(.is-preview){display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;width:238px;padding:10px 12px}
+.map-discovery:not(.is-preview) .discovery-kicker{grid-column:1/-1;min-height:11px}
+.map-discovery:not(.is-preview) .discovery-main,.map-discovery:not(.is-preview) .discovery-bottom{display:contents}
+.map-discovery:not(.is-preview) .discovery-total{display:none}
+.map-discovery:not(.is-preview) .discovery-price{font-size:24px;line-height:1.05}
+.map-discovery:not(.is-preview) .discovery-brand{line-height:1.3}
+.map-discovery:not(.is-preview) .discovery-saving{grid-column:1/-1;grid-row:3;font-size:8px;line-height:1.3;min-height:14px}
+.map-discovery:not(.is-preview) .discovery-saving>span{display:inline;font-size:7px}
+.map-discovery:not(.is-preview) .discovery-bottom>button{grid-column:2;grid-row:2;align-self:center;gap:4px;padding:6px 7px;border:1px solid var(--atlas-border);border-radius:8px;min-height:34px;font-size:8px}
+.map-discovery:not(.is-preview) .discovery-bottom>button:hover{background:#8aa15b20}
+@media(max-width:600px){.map-discovery:not(.is-preview){width:226px}.map-discovery .discovery-saving{font-size:8px}.map-discovery .discovery-saving>span{font-size:7px}}
