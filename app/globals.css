@@ -258,3 +258,8 @@
 .stack-items b{font:500 18px var(--display);color:var(--price-bg)}.map-theme-day .stack-items b{color:var(--price-ink)}
 @media(max-width:600px){.map-stack{left:12px;right:12px;bottom:135px;width:auto;max-width:350px}.stack-items{max-height:170px}}
 @media(max-width:360px){.hero-arrow{display:none}.atlas-view-switch>button{gap:4px;padding:7px 6px;font-size:8px;min-height:32px}.atlas-tools>button{width:34px;min-height:40px;padding:8px}.atlas-toolbar{gap:6px}.atlas-tools{gap:4px}}
+
+.nearby-spinner{width:16px;height:16px;border-width:2px;display:inline-block;flex-shrink:0}
+.near-button[aria-busy=true]{opacity:.8;cursor:progress}
+.map-atlas .locate-map.has-location{color:#8dbbff;border-color:#79a7e955}
+.map-theme-day .locate-map.has-location{color:#2767b8;border-color:#307aeb55}

@@ -1,3 +1,4 @@
+import {shouldLocateOnOpen,supportedPosition} from '../lib/nearby.ts';
 import {summarizeMap,groupMapItems} from '../lib/map-experience.ts';
 import {priceLevel} from '../lib/price-level.ts';
 import assert from 'node:assert/strict';
@@ -80,3 +81,16 @@ for(let i=0;i<clusters.length;i++){
 }
 assert.deepEqual(groupMapItems([...clusterInput].reverse(),projected),clusters);
 console.log('Verificati gruppi senza sovrapposizioni, ancoraggio al minimo e accesso a tutti i distributori.');
+
+assert.equal(shouldLocateOnOpen(''),true);
+assert.equal(shouldLocateOnOpen('?ricerca=1&carburante=Gasolio'),true);
+assert.equal(shouldLocateOnOpen('?ricerca=1&area=city&comune=075035'),false);
+assert.equal(shouldLocateOnOpen('?ricerca=1&area=province&comune=075035'),false);
+assert.equal(shouldLocateOnOpen('?ricerca=1&area=postcode&cap=00144'),false);
+assert.equal(shouldLocateOnOpen('?ricerca=1&area=address&indirizzo=Via+Roma&localita=Lecce&lat=40.35&lng=18.18&raggio=3'),false);
+assert.equal(shouldLocateOnOpen('?ricerca=1&lat=40.35&lng=18.18&zoom=13'),false);
+assert.equal(shouldLocateOnOpen('?impianto=123'),false);
+for(const search of ['?impianto=0','?impianto=evil','?ricerca=1&area=city&comune=broken','?ricerca=1&lat=Infinity&lng=18&zoom=13'])assert.equal(shouldLocateOnOpen(search),true);
+assert.equal(supportedPosition(40.35,18.18),true);
+for(const p of [[NaN,18],[Infinity,18],[40,Infinity],[51,-1],[-40,18],[40,180]])assert.equal(supportedPosition(...p),false);
+console.log('Verificata apertura sulla posizione, precedenza dei link espliciti e coordinate valide.');
