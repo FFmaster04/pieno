@@ -5,7 +5,7 @@ import {syncCloudflareData} from '../lib/cloudflare-site.mjs';
 
 const root=new URL('../',import.meta.url),output=new URL('../dist-static/',import.meta.url);
 function run(file,args=[]){
- const result=spawnSync(process.execPath,[fileURLToPath(new URL(file,root)),...args],{cwd:fileURLToPath(root),env:{...process.env,PAGES_BASE_PATH:'/'},stdio:'inherit'});
+ const result=spawnSync(process.execPath,[fileURLToPath(new URL(file,root)),...args],{cwd:fileURLToPath(root),env:{...process.env,PAGES_BASE_PATH:'/',PAGES_REDIRECT_URL:''},stdio:'inherit'});
  if(result.error)throw result.error;if(result.status!==0)throw Error('Preparazione del sito non riuscita.');
 }
 run('node_modules/vite/bin/vite.js',['build','--config','vite.static.config.ts']);

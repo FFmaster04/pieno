@@ -4,6 +4,6 @@ import {fileURLToPath,URL} from 'node:url';
 export default defineConfig({
  root:'static',publicDir:'../public',base:process.env.PAGES_BASE_PATH||'/',
  plugins:[react()],resolve:{alias:{'@':fileURLToPath(new URL('.',import.meta.url))}},
- define:{'import.meta.env.VITE_STATIC_DATA':JSON.stringify('true')},
+ define:{'import.meta.env.VITE_STATIC_DATA':JSON.stringify('true'),'import.meta.env.VITE_PUBLIC_SITE_URL':JSON.stringify(process.env.PAGES_REDIRECT_URL||'')},
  build:{outDir:'../dist-static',emptyOutDir:true,chunkSizeWarningLimit:600},
 });

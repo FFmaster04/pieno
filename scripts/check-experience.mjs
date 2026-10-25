@@ -1,3 +1,4 @@
+import {siteRedirect} from '../lib/site-address.ts';
 import {shouldLocateOnOpen,supportedPosition} from '../lib/nearby.ts';
 import {summarizeMap,groupMapItems} from '../lib/map-experience.ts';
 import {priceLevel} from '../lib/price-level.ts';
@@ -94,3 +95,12 @@ for(const search of ['?impianto=0','?impianto=evil','?ricerca=1&area=city&comune
 assert.equal(supportedPosition(40.35,18.18),true);
 for(const p of [[NaN,18],[Infinity,18],[40,Infinity],[51,-1],[-40,18],[40,180]])assert.equal(supportedPosition(...p),false);
 console.log('Verificata apertura sulla posizione, precedenza dei link espliciti e coordinate valide.');
+
+const nextAddress='https://pienoitalia.pages.dev/';
+assert.equal(siteRedirect('https://ffmaster04.github.io/pieno/',nextAddress,true),nextAddress);
+assert.equal(siteRedirect('https://ffmaster04.github.io/pieno/?ricerca=1&area=city&comune=075035#esplora',nextAddress,true),nextAddress+'?ricerca=1&area=city&comune=075035#esplora');
+assert.equal(siteRedirect('https://ffmaster04.github.io/pieno/?impianto=123',nextAddress,true),nextAddress+'?impianto=123');
+for(const current of ['https://pienoitalia.pages.dev/','http://localhost:4173/','https://ffmaster04.github.io/pieno/data/initial.json','https://ffmaster04.github.io/altro/'])assert.equal(siteRedirect(current,nextAddress,true),null);
+for(const target of ['https://other.example/','http://pienoitalia.pages.dev/','https://user:pass@pienoitalia.pages.dev/','not a URL'])assert.equal(siteRedirect('https://ffmaster04.github.io/pieno/',target,true),null);
+assert.equal(siteRedirect('https://ffmaster04.github.io/pieno/',nextAddress,false),null);
+console.log('Verificato cambio indirizzo con ricerca, impianto e frammento conservati; nessun ciclo o reindirizzamento offline/API.');

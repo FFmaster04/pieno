@@ -1,6 +1,6 @@
 # pieno — tutto il progetto, a costo zero
 
-Sito pubblico: **https://ffmaster04.github.io/pieno/**. Repository: **https://github.com/FFmaster04/pieno**.
+Nuovo sito pubblico: **https://pienoitalia.pages.dev/**, Cloudflare Pages Free senza carta. Il precedente indirizzo **https://ffmaster04.github.io/pieno/** conduce al nuovo sito, conservando ricerca e link agli impianti. I percorsi dati del vecchio host restano disponibili per sincronizzare i listini. Repository: **https://github.com/FFmaster04/pieno**.
 
 ## Cosa include
 
@@ -15,9 +15,19 @@ Le nuove funzioni comprendono:
 5. Link di ricerca che ricostruiscono zona, CAP o indirizzo, filtri, quantità ed eventuali impianti nel confronto. I link hanno precedenza sulle preferenze del destinatario. I prezzi rimangono quelli disponibili quando vengono aperti.
 6. App web installabile nei browser compatibili, con icone dedicate e consultazione offline di prezzi, località, confronto e storico dopo una prima visita completa. Mappe, indicazioni stradali e nuovi indirizzi richiedono una connessione. La data della copia rimane visibile.
 
-7. Mappa con temi notte/giorno, modalità Convenienza, prezzi raggruppati senza sovrapposizioni e anteprima del distributore. La scheda del minimo considera solo gli impianti nella vista corrente e calcola il pieno con la quantità scelta; i gruppi indicano il prezzo minimo e restano ancorati al relativo distributore. Gli impianti coincidenti sono selezionabili anche allo zoom massimo. Schermo intero nei browser compatibili e rispetto delle preferenze di movimento ridotto. Stesse tessere OpenStreetMap, nessuna nuova API o dipendenza.\n\n8. All’apertura normale viene richiesta la posizione del browser e vengono mostrati la posizione sulla mappa e i distributori dell’area, ordinati per distanza in linea d’aria. La richiesta parte una sola volta per apertura; consenso negato, timeout, posizione non disponibile o fuori dall’area coperta lasciano disponibile la ricerca manuale. Ricerca, spostamento della mappa o scelta esplicita interrompono l’attesa: una risposta tardiva non sovrascrive la scelta dell’utente. I link condivisi con una destinazione e i link ai singoli impianti mantengono la loro precedenza. Nessuna geolocalizzazione IP, nuovo servizio o salvataggio delle coordinate GPS.\n\n## Gratuità e pubblicazione
+7. Mappa con temi notte/giorno, modalità Convenienza, prezzi raggruppati senza sovrapposizioni e anteprima del distributore. La scheda del minimo considera solo gli impianti nella vista corrente e calcola il pieno con la quantità scelta; i gruppi indicano il prezzo minimo e restano ancorati al relativo distributore. Gli impianti coincidenti sono selezionabili anche allo zoom massimo. Schermo intero nei browser compatibili e rispetto delle preferenze di movimento ridotto. Stesse tessere OpenStreetMap, nessuna nuova API o dipendenza.
 
-Il sito usa GitHub Pages con repository pubblico e runner GitHub Actions Ubuntu standard, senza API a pagamento, servizi AI, database o computer acceso. Non serve acquistare un dominio. Il servizio Photon pubblico per gli indirizzi è gratuito e best-effort. Non sono configurati acquisti o abbonamenti.
+8. All’apertura normale viene richiesta la posizione del browser e vengono mostrati la posizione sulla mappa e i distributori dell’area, ordinati per distanza in linea d’aria. La richiesta parte una sola volta per apertura; consenso negato, timeout, posizione non disponibile o fuori dall’area coperta lasciano disponibile la ricerca manuale. Ricerca, spostamento della mappa o scelta esplicita interrompono l’attesa: una risposta tardiva non sovrascrive la scelta dell’utente. I link condivisi con una destinazione e i link ai singoli impianti mantengono la loro precedenza. Nessuna geolocalizzazione IP, nuovo servizio o salvataggio delle coordinate GPS.
+
+## Nuovo indirizzo pienoitalia
+
+Configurazione, limiti gratuiti e sincronizzazione: [hosting/cloudflare/LEGGIMI.md](hosting/cloudflare/LEGGIMI.md). Il nuovo sito è statico, senza Functions, database o servizi a pagamento. La build si esegue con npm run build:cloudflare e usa la copia validata realmente pubblicata su GitHub Pages. Ricevute con data e hash impediscono di distribuire listini precedenti. La migrazione non risolve da sola la connessione MIMIT e non cambia le date dei prezzi.
+
+Preferiti, preferenze e permessi del browser appartengono a ciascun indirizzo: il nuovo sito può richiedere nuovamente la posizione, e l’app installata dal vecchio indirizzo va reinstallata da quello nuovo. Le copie locali precedenti non vengono cancellate o trasferite automaticamente.
+
+## Gratuità e pubblicazione
+
+Il sito pubblico usa Cloudflare Pages Free; la pubblicazione dei dati continua su GitHub Pages con repository pubblico e runner GitHub Actions Ubuntu standard, senza API a pagamento, servizi AI, database o computer acceso. Non serve acquistare un dominio. Il servizio Photon pubblico per gli indirizzi è gratuito e best-effort. Non sono configurati acquisti o abbonamenti.
 
 Per replicare il progetto: crea un repository pubblico `pieno`, carica anche `.github`, seleziona **Settings → Pages → Source → GitHub Actions** e avvia il workflow “Prezzi giornalieri e sito”. Il dominio sarà `https://NOMEUTENTE.github.io/pieno/`.
 

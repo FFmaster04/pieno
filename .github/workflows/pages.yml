@@ -42,6 +42,7 @@ jobs:
       - name: Crea il sito statico
         env:
           PAGES_BASE_PATH: /${{ github.event.repository.name }}/
+          PAGES_REDIRECT_URL: https://pienoitalia.pages.dev/
         run: npm run build
       - name: Registra il controllo giornaliero
         run: |
