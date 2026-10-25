@@ -36,6 +36,7 @@ jobs:
           npm run check-search
           npm run check-experience
           npm run check-update
+          npm run check-cloudflare
           node scripts/check-feed.mjs
           node node_modules/typescript/bin/tsc --noEmit
       - name: Crea il sito statico
