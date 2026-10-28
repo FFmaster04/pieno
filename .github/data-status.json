@@ -1,8 +1,8 @@
 {
-  "checkedDay": "2026-10-23",
-  "sourceDate": "2026-10-22",
-  "stations": 23773,
-  "priceCount": 92122,
-  "checkedAt": "2026-10-23T19:21:44.286Z",
-  "snapshotHash": "18ad6345b478a9df26f1a72e9f77bc350e2fc9fb8c5e69a538c8c634d051d860"
+  "checkedDay": "2026-10-28",
+  "sourceDate": "2026-10-27",
+  "stations": 23776,
+  "priceCount": 92133,
+  "checkedAt": "2026-10-28T21:19:02.019Z",
+  "snapshotHash": "44edc29161b64c851539dd9e6f7f2b311872b53c0d609d8ddb54f92a4953e102"
 }
